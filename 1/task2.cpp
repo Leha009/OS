@@ -1,4 +1,4 @@
-//g++ *.cpp -lWinmm
+//g++ *.cpp -lWinmm -static-libstdc++
 
 #include <iostream>
 #include <windows.h>
@@ -11,11 +11,6 @@ DWORD GetBlockSize(DWORD, DWORD);
 void ReadEnd(DWORD, DWORD, LPOVERLAPPED);
 void WriteEnd(DWORD, DWORD, LPOVERLAPPED);
 
-/*HANDLE  hFileToCopy,
-        hFileToCopyIn;
-    
-//int32_t buffer[1024];*/
-
 void Task2Run()
 {
     string sBuff;
@@ -26,7 +21,7 @@ void Task2Run()
     cout << "Input the file name to copy: ";
     cin >> sBuff;
     hFileToCopy = CreateFile(  sBuff.c_str(),
-                                GENERIC_READ,// | GENERIC_WRITE,
+                                GENERIC_READ | GENERIC_WRITE,
                                 0,
                                 NULL,
                                 OPEN_EXISTING,
@@ -41,7 +36,7 @@ void Task2Run()
         cout << "Input the file name to copy in: ";
         cin >> sBuff;
         hFileToCopyIn = CreateFile(  sBuff.c_str(),
-                                /*GENERIC_READ | */GENERIC_WRITE,
+                                GENERIC_READ | GENERIC_WRITE,
                                 0,
                                 NULL,
                                 OPEN_ALWAYS,
@@ -153,8 +148,8 @@ void ReadEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lp
     }
     else if(dwNumberOfBytesTransfered != 0)
     {
-        lpOverlapped->Offset += dwNumberOfBytesTransfered;
-        /*cout << "Read " << dwNumberOfBytesTransfered << '\n';
+        /*lpOverlapped->Offset += dwNumberOfBytesTransfered;
+        cout << "Read " << dwNumberOfBytesTransfered << '\n';
         /*int32_t buffer[1024];
         if(!WriteFileEx(hFileToCopyIn, (LPVOID)buffer, 1024UL, lpOverlapped, WriteEnd))
         {
@@ -173,8 +168,8 @@ void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED l
     }
     else if(dwNumberOfBytesTransfered != 0)
     {
-        lpOverlapped->Offset += dwNumberOfBytesTransfered;
-        /*cout << "Wrote " << dwNumberOfBytesTransfered << '\n';
+        /*lpOverlapped->Offset += dwNumberOfBytesTransfered;
+        cout << "Wrote " << dwNumberOfBytesTransfered << '\n';
         /*int32_t buffer[1024];
         //lpOverlapped->Offset += dwNumberOfBytesTransfered;
         if(!ReadFileEx(hFileToCopy, (LPVOID)buffer, 1024UL, lpOverlapped, ReadEnd))
