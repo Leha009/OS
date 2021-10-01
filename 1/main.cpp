@@ -1,6 +1,6 @@
 #include <iostream>
 #include "task1.h"
-#include "task2.h"
+//#include "task2.h"
 
 using namespace std;
 
@@ -11,7 +11,7 @@ int main()
     {
         system("cls");
         cout << "1. Task one\n";
-        cout << "2. Task two\n";
+        cout << "2. Task two: copy file\n";
         cout << "0. Exit\n";
         cin >> iMenuItem;
         if(iMenuItem < 0 || iMenuItem > 2)
@@ -25,10 +25,10 @@ int main()
             {
                 Task1Run();
             }   
-            else if(iMenuItem == 2)
+            /*else if(iMenuItem == 2)
             {
                 Task2Run();
-            }
+            }*/
         }
     } while(iMenuItem != 0);
     return 0;

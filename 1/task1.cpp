@@ -211,7 +211,7 @@ void PrintVolumeInfo(LPCSTR drive)
     }
     else
     {
-        cout << "Something went wrong with volume info getting :(\n";
+        cout << "Something went wrong with volume info getting :( Code is " << GetLastError() << '\n';
     }
 }
 
@@ -466,7 +466,8 @@ void SetFileAttributes_(LPCSTR sFileName)
     if(iBuff != 0)
     {
         HANDLE hFile = CreateFile(  sFileName, 
-                                    GENERIC_READ | GENERIC_WRITE, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                    GENERIC_READ | GENERIC_WRITE, 
+                                    0,
                                     NULL,
                                     OPEN_EXISTING,
                                     FILE_ATTRIBUTE_NORMAL,
@@ -535,12 +536,6 @@ void FillFileTime(LPFILETIME lpFileTime)
     struct tm tm;
     FileTimeToSystemTime(lpFileTime, &stBuff);
     cout << "Current date is " << GetFullDate(&stBuff) << '\n';
-    /*cout << "Input the full date (day/month/year hour:minute:seconds): ";
-    cin.ignore();
-    getline(cin, sBuff);
-    cin.clear();
-    stringstream ss(sBuff);
-    ss >> get_time(&tm, "%D/%M/%Y %H:%M:%S");*/
     cout << "Input the date (day/month/year): ";
     cin >> sBuff;
     cin.clear();
