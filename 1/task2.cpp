@@ -6,6 +6,11 @@
 
 using namespace std;
 
+#define BUFF_SIZE 16384UL
+//#define BUFF_SIZE 1024UL
+#define SLEEP_TIME -1
+
+DWORD GetClusterMinSizeWithFileDrive(LPCSTR);
 DWORD GetClusterMinSize(LPCSTR);
 DWORD GetBlockSize(DWORD, DWORD);
 void ReadEnd(DWORD, DWORD, LPOVERLAPPED);
@@ -13,6 +18,7 @@ void WriteEnd(DWORD, DWORD, LPOVERLAPPED);
 
 void Task2Run()
 {
+    system("cls");
     string sBuff;
     DWORD dwMilliseconds;
     HANDLE  hFileToCopy,
@@ -39,82 +45,110 @@ void Task2Run()
                                 GENERIC_READ | GENERIC_WRITE,
                                 0,
                                 NULL,
-                                OPEN_ALWAYS,
+                                CREATE_ALWAYS,
                                 FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED,
                                 NULL);
         if(hFileToCopyIn != INVALID_HANDLE_VALUE)
         {
-            char* sBuff2 = new char[MAX_PATH];
-            GetFullPathNameA(sBuff.c_str(), MAX_PATH, sBuff2, NULL);
-            sBuff2[3] = 0;
-            DWORD clusterSize = GetClusterMinSize(sBuff2);
-            cout << "cluster size is " << clusterSize << '\n';
-            delete sBuff2;
+            DWORD clusterSize = GetClusterMinSizeWithFileDrive(sBuff.c_str());
             bool allGood = true;
-            int32_t buffer[4096];
+            int32_t buffer[BUFF_SIZE];
             OVERLAPPED overlapped, overl2;
+            overlapped.Offset = overl2.Offset = 0UL;
             DWORD size;
             DWORD dwBytesTrans = 0UL;
             LARGE_INTEGER fileCopySize;
-            GetFileSizeEx(hFileToCopy, &fileCopySize);
+            if(!GetFileSizeEx(hFileToCopy, &fileCopySize))
+            {
+                cout << "Getting file size failed! Error code is " << GetLastError() << '\n';
+            }
             struct dwFileSize
             {
                 DWORD lowPart;
                 DWORD highPart;
             } udwFileSize;
             udwFileSize.lowPart = GetFileSize(hFileToCopy, &udwFileSize.highPart);
-            //overlapped.Offset = 0UL;
+            cout << "File size is " << udwFileSize.highPart << " | " << udwFileSize.lowPart << '\n';
+            DWORD start = GetTickCount();
             do
             {
-                if(udwFileSize.lowPart == 0UL)
-                    break;
-                size = GetBlockSize(4096UL < udwFileSize.lowPart ? 4096UL : udwFileSize.lowPart, clusterSize);
-                if(udwFileSize.lowPart < size)
-                    udwFileSize.lowPart = 0;
+                size = GetBlockSize(BUFF_SIZE < udwFileSize.lowPart ? BUFF_SIZE : udwFileSize.lowPart, clusterSize);
+                
+                if(udwFileSize.highPart < size)
+                {
+                    if(udwFileSize.highPart != 0UL)
+                    {
+                        udwFileSize.lowPart -= size-udwFileSize.highPart;
+                        udwFileSize.highPart = 0;
+                    }
+                    else
+                    {
+                        if(udwFileSize.lowPart < size)
+                            udwFileSize.lowPart = 0;
+                        else
+                            udwFileSize.lowPart -= size;
+                    }
+                }
                 else
-                    udwFileSize.lowPart -= size;
-                cout << "To read: " << size << '\n';
+                {
+                    udwFileSize.highPart -= size;
+                }
+                
                 if(!ReadFileEx(hFileToCopy, (LPVOID)buffer, size, &overlapped, ReadEnd))
                 {
                     cout << "Reading failed! Error code is " << GetLastError() << '\n';
                     allGood = false;
                     break;
                 }
-                SleepEx(1000UL, true);
+                SleepEx(SLEEP_TIME, true);
                 if(!GetOverlappedResult(hFileToCopy, &overlapped, &dwBytesTrans, false))
                 {
                     cout << GetLastError();
                     allGood = false;
                     break;
                 }
-                cout << "Trans " << dwBytesTrans << '\n';
-                if(!WriteFileEx(hFileToCopyIn, (LPVOID)buffer, GetBlockSize(dwBytesTrans, clusterSize), &overl2, WriteEnd))
+                cout << "Trans " << dwBytesTrans << '\n';   //DEBUG
+                if(!WriteFileEx(hFileToCopyIn, (LPVOID)buffer, size, &overl2, WriteEnd))
                 {
                     cout << "Writing failed! Error code is " << GetLastError() << '\n';
                     allGood = false;
                     break;
                 }
-                SleepEx(1000UL, true);
-            } while (HasOverlappedIoCompleted(&overlapped));
+                SleepEx(SLEEP_TIME, true);
+            //} while (!HasOverlappedIoCompleted(&overlapped) && !HasOverlappedIoCompleted(&overl2));
+            } while (udwFileSize.lowPart != 0UL);
             if(allGood)
             {
+                cout << "Set pointer at " << fileCopySize.HighPart << " | " << fileCopySize.LowPart << '\n';    //DEBUG
                 SetFilePointerEx(hFileToCopyIn, fileCopySize, NULL, FILE_BEGIN);
                 SetEndOfFile(hFileToCopyIn);
             }
-            cout << "Close copy in handle\n";
-            CloseHandle(hFileToCopyIn);
+            cout << "The copying took " << ((double)(GetTickCount()-start)/1000) << " seconds\n";
+            if(!CloseHandle(hFileToCopyIn))
+            {
+                cout << "Closing handle failed! Error code is " << GetLastError() << '\n';
+            }
         }
         else
         {
             cout << "Opening file failed! Error code is " << GetLastError() << '\n';
         }
-        cout << "Close copy from handle\n";
-        CloseHandle(hFileToCopy);
+        if(!CloseHandle(hFileToCopy))
+        {
+            cout << "Closing handle failed! Error code is " << GetLastError() << '\n';
+        }
     }
-    /*DWORD dwStart = timeGetTime();
-    SleepEx(5000, false);
-    cout << ((timeGetTime() - dwStart) / (DWORD)1000) << " seconds\n";*/
     system("pause");
+}
+
+DWORD GetClusterMinSizeWithFileDrive(LPCSTR lpFileName)
+{
+    char* sBuff = new char[MAX_PATH];
+    GetFullPathNameA(lpFileName, MAX_PATH, sBuff, NULL);
+    sBuff[3] = 0;
+    DWORD dwMinSize = GetClusterMinSize(sBuff);
+    delete sBuff;
+    return dwMinSize;
 }
 
 DWORD GetClusterMinSize(LPCSTR drive)
@@ -125,15 +159,12 @@ DWORD GetClusterMinSize(LPCSTR drive)
     {
         cout << "Getting disk cluster info failed! Error code is " << GetLastError() << ',';
     }
-    //return dwSectorsPerCluster*dwBytesPerSector;
     return dwBytesPerSector;
 }
 
 DWORD GetBlockSize(DWORD dwBufferSize, DWORD dwClusterSize)
 {
-    DWORD dwBlockSize = dwClusterSize*(dwBufferSize/dwClusterSize);
-    if(dwBlockSize == 0UL)
-        dwBlockSize = dwClusterSize;
+    DWORD dwBlockSize = dwClusterSize*(dwBufferSize/dwClusterSize+1);
     return dwBlockSize;
 }
 
@@ -141,41 +172,24 @@ DWORD GetBlockSize(DWORD dwBufferSize, DWORD dwClusterSize)
 
 void ReadEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 {
-    DWORD LastError = GetLastError();
-    if(dwErrorCode != 0UL)// && LastError != 0UL)
+    if(dwErrorCode != 0UL)
     {
         cout << "Read failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
     else if(dwNumberOfBytesTransfered != 0)
     {
-        /*lpOverlapped->Offset += dwNumberOfBytesTransfered;
-        cout << "Read " << dwNumberOfBytesTransfered << '\n';
-        /*int32_t buffer[1024];
-        if(!WriteFileEx(hFileToCopyIn, (LPVOID)buffer, 1024UL, lpOverlapped, WriteEnd))
-        {
-            cout << "Writing2 failed! Error code is " << GetLastError() << '\n';
-        }
-        SleepEx(1000UL, true);*/
+        lpOverlapped->Offset += dwNumberOfBytesTransfered;
     }
 }
 
 void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 {
-    DWORD LastError = GetLastError();
-    if(dwErrorCode != 0UL)// && LastError != 0UL)
+    if(dwErrorCode != 0UL)
     {
-        cout << "Write failed! Error code is " << LastError << " | " << dwErrorCode << '\n';
+        cout << "Write failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
     else if(dwNumberOfBytesTransfered != 0)
     {
-        /*lpOverlapped->Offset += dwNumberOfBytesTransfered;
-        cout << "Wrote " << dwNumberOfBytesTransfered << '\n';
-        /*int32_t buffer[1024];
-        //lpOverlapped->Offset += dwNumberOfBytesTransfered;
-        if(!ReadFileEx(hFileToCopy, (LPVOID)buffer, 1024UL, lpOverlapped, ReadEnd))
-        {
-            cout << "Read2 failed! Error code is " << GetLastError() << '\n';
-        }
-        SleepEx(1000UL, true);*/
+        lpOverlapped->Offset += dwNumberOfBytesTransfered;
     }
 }
