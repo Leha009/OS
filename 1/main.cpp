@@ -1,11 +1,12 @@
 #include <iostream>
 #include "task1.h"
-//#include "task2.h"
+#include "task2.h"
 
 using namespace std;
 
 int main()
 {
+    system("chcp 1251");
     int iMenuItem;
     do
     {
@@ -25,10 +26,10 @@ int main()
             {
                 Task1Run();
             }   
-            /*else if(iMenuItem == 2)
+            else if(iMenuItem == 2)
             {
                 Task2Run();
-            }*/
+            }
         }
     } while(iMenuItem != 0);
     return 0;

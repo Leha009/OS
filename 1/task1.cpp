@@ -25,7 +25,7 @@ string GetFileAttributes_();
 
 void Task1Run()
 {
-    setlocale(LC_ALL, "Russian");
+    //setlocale(LC_ALL, "Russian");
     int iMenuItem,
         iBuff;
     string sBuff;
@@ -205,7 +205,7 @@ void PrintVolumeInfo(LPCSTR drive)
     if(bSuccess)
     {
         cout << "Name: " << (strlen(sVolumeNameBuffer) > 0 ? sVolumeNameBuffer : "No name");
-        cout << " | Serial number: " << dwVolumeSerialNumber << '\n';
+        cout << " | Serial number: " << hex << dwVolumeSerialNumber << dec << '\n';
         cout << "Max component length: " << dwMaximumComponentLength << '\n';
         cout << "fileSystemName: " << sFileSystemNameBuffer << '\n';
     }
@@ -232,8 +232,8 @@ void PrintDiskFreeSpace(LPCSTR drive)
     {
         cout << "\n===== DISK SPACE INFO =====\nSectors per cluster: " << dwSectorsPerCluster << "\nBytes per sector: " << dwBytesPerSector << '\n';
         cout << "Number of free clusters: " << dwNumberOfFreeClusters << "\nTotal number of clusters: " << dwTotalNumberOfClusters << '\n';
-        cout << "Free space: " << (dwSectorsPerCluster * dwBytesPerSector * dwNumberOfFreeClusters) << " bytes\n";
-        cout << "Total space: " << (dwSectorsPerCluster * dwBytesPerSector * dwTotalNumberOfClusters) << " bytes\n";
+        cout << "Free space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwNumberOfFreeClusters) << " bytes\n";
+        cout << "Total space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwTotalNumberOfClusters) << " bytes\n";
     }
     else
     {
