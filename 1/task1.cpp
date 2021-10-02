@@ -1,7 +1,6 @@
 #include <iostream>
 #include <sstream>
 #include <windows.h>
-#include <iomanip>  //get_time
 #include "task1.h"
 
 using namespace std;
@@ -25,7 +24,6 @@ string GetFileAttributes_();
 
 void Task1Run()
 {
-    //setlocale(LC_ALL, "Russian");
     int iMenuItem,
         iBuff;
     string sBuff;
@@ -76,7 +74,7 @@ void Task1Run()
             sBuff = GetFileAttributes_();
             if(sBuff.compare("") != 0)
             {
-                cout << "Do you want to change attributes for this file? Type 1 for yes, 0 for no: ";
+                cout << "Do you want to change attributes of this file? Type 1 for yes, 0 for no: ";
                 do
                 {
                     cin >> iBuff;
@@ -138,10 +136,9 @@ void PrintLogicalDrives(bool outputNumInMask)
         //for(; driveBits < 32 && _LogicalDrives >> driveBits & 1 != 1; driveBits++);   
         cout << buff;   //Выводим букву диска
         if(outputNumInMask)
-            cout << '(' << (1 << driveBits++) << ") ";  //Выводим число, соответвующее месту диска в битовой маске
+            cout << '(' << ((DWORD)1 << driveBits++) << ") ";  //Выводим число, соответвующее месту диска в битовой маске
         else
-            cout << ' ';
-        
+            cout << ' '; 
         while(*p++);    //Идем до следующей буквы
     } while(*p);
     cout << '\n';
@@ -161,50 +158,51 @@ void PrintDriveType(LPCSTR drive)
     cout << "Drive type:\n";
     switch (dwType)
     {
-    case 0:
-        cout << "\tThe drive type cannot be determined.\n";
-        break;
-    case 1:
-        cout << "\tThe root path is invalid; for example, there is no volume mounted at the specified path.\n";
-        break;
-    case 2:
-        cout << "\tThe drive has removable media; for example, a floppy drive, thumb drive, or flash card reader.\n";
-        break;
-    case 3:
-        cout << "\tThe drive has fixed media; for example, a hard disk drive or flash drive.\n";
-        break;
-    case 4:
-        cout << "\tThe drive is a remote (network) drive.\n";
-        break;
-    case 5:
-        cout << "\tThe drive is a CD-ROM drive.\n";
-        break;
-    case 6:
-        cout << "\tThe drive is a RAM disk.\n";
-        break;
-    default:
-        break;
+        case 0:
+            cout << "\tThe drive type cannot be determined.\n";
+            break;
+        case 1:
+            cout << "\tThe root path is invalid; for example, there is no volume mounted at the specified path.\n";
+            break;
+        case 2:
+            cout << "\tThe drive has removable media; for example, a floppy drive, thumb drive, or flash card reader.\n";
+            break;
+        case 3:
+            cout << "\tThe drive has fixed media; for example, a hard disk drive or flash drive.\n";
+            break;
+        case 4:
+            cout << "\tThe drive is a remote (network) drive.\n";
+            break;
+        case 5:
+            cout << "\tThe drive is a CD-ROM drive.\n";
+            break;
+        case 6:
+            cout << "\tThe drive is a RAM disk.\n";
+            break;
+        default:
+            cout << "\tHow did you get this case?! ヽ(°□° )ノ\n";
+            break;
     }
 }
 
 void PrintVolumeInfo(LPCSTR drive)
 {
-    TCHAR   sVolumeNameBuffer[MAX_PATH+1] = "Empty",
-            sFileSystemNameBuffer[MAX_PATH];
+    TCHAR   sVolumeNameBuffer[MAX_PATH+1],
+            sFileSystemNameBuffer[MAX_PATH+1];
     DWORD   dwVolumeSerialNumber = 0UL,     //Серийный номер
             dwMaximumComponentLength = 0UL; //Макс. длина в символах компонента имена файла
     bool bSuccess = GetVolumeInformation(
-                        drive, 
+                        drive,
                         sVolumeNameBuffer, 
                         MAX_PATH+1,
                         &dwVolumeSerialNumber,
                         &dwMaximumComponentLength,
                         NULL,
                         sFileSystemNameBuffer,
-                        MAX_PATH);
+                        MAX_PATH+1);
     if(bSuccess)
     {
-        cout << "Name: " << (strlen(sVolumeNameBuffer) > 0 ? sVolumeNameBuffer : "No name");
+        cout << "Name: " << (strlen(sVolumeNameBuffer) > 0 ? sVolumeNameBuffer : "Local disk");
         cout << " | Serial number: " << hex << dwVolumeSerialNumber << dec << '\n';
         cout << "Max component length: " << dwMaximumComponentLength << '\n';
         cout << "fileSystemName: " << sFileSystemNameBuffer << '\n';
@@ -232,7 +230,7 @@ void PrintDiskFreeSpace(LPCSTR drive)
     {
         cout << "\n===== DISK SPACE INFO =====\nSectors per cluster: " << dwSectorsPerCluster << "\nBytes per sector: " << dwBytesPerSector << '\n';
         cout << "Number of free clusters: " << dwNumberOfFreeClusters << "\nTotal number of clusters: " << dwTotalNumberOfClusters << '\n';
-        cout << "Free space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwNumberOfFreeClusters) << " bytes\n";
+        cout << "Free space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwNumberOfFreeClusters) << " bytes\n"; //Делишь на 1024 столько раз, сколько надо для типа размера (кбайт, мбайт, гбайт, тбайт)
         cout << "Total space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwTotalNumberOfClusters) << " bytes\n";
     }
     else
@@ -257,7 +255,7 @@ void CreateRemoveDirectoryMenu()
     {
         cout << "Input the path for new directory: ";
         cin >> sBuff;
-        if(CreateDirectory(sBuff.c_str(), NULL))
+        if(CreateDirectoryA(sBuff.c_str(), NULL))
         {
             cout << "The directory successfully created!\n";
         }
@@ -271,7 +269,7 @@ void CreateRemoveDirectoryMenu()
     {
         cout << "Input the directory's path to be removed: ";
         cin >> sBuff;
-        if(RemoveDirectory(sBuff.c_str()))
+        if(RemoveDirectoryA(sBuff.c_str()))
         {
             cout << "The directory successfully removed!\n";
         }
@@ -389,7 +387,7 @@ string GetFileAttributes_()
         cout << "File opening failed! Error code is " << GetLastError() << '\n';
         return "";
     }
-    //Получаем атрибуты
+    //Получаем атрибуты через HANDLE
     if(bByHandle)
     {
         BY_HANDLE_FILE_INFORMATION fileInfo;
@@ -456,7 +454,7 @@ void SetFileAttributes_(LPCSTR sFileName)
     {
         cout << "Setting new file attributes failed! Error code is " << GetLastError() << '\n';
     }
-    cout << "Do you want to change file times (creation, last access, last write time)? 1 - yes, 0 - no: ";
+    cout << "Do you want to update file times? 1 - yes, 0 - no: ";
     do
     {
         cin >> iBuff;
@@ -474,6 +472,7 @@ void SetFileAttributes_(LPCSTR sFileName)
                                     NULL);
         if(hFile != INVALID_HANDLE_VALUE)
         {
+            cout << "Be careful, this time is not your local time! It's GMT time! So input the GMT time as well.\n";
             GetFileTime(hFile, &ftCreationTime, &ftLastAccessTime, &ftLastWriteTime);
             cout << "\n===== Creation time =====\n";
             FillFileTime(&ftCreationTime);
@@ -481,7 +480,7 @@ void SetFileAttributes_(LPCSTR sFileName)
             FillFileTime(&ftLastAccessTime);
             cout << "\n===== Last write time =====\n";
             FillFileTime(&ftLastWriteTime);
-            if(SetFileTime(hFile, &ftCreationTime, &ftLastAccessTime, &ftLastAccessTime))
+            if(SetFileTime(hFile, &ftCreationTime, &ftLastAccessTime, &ftLastWriteTime))
             {
                 cout << "File time was successfully changed!\n";
             }
@@ -498,6 +497,9 @@ void SetFileAttributes_(LPCSTR sFileName)
     }
 }
 
+/**
+ * Функция, которая преобразует системное время в строки вида DAY/MONTH/YEAR HOURS:MINUTES:SECONDS
+ */
 string GetFullDate(LPSYSTEMTIME systemTime)
 {
     stringstream ssFullDate;
@@ -528,28 +530,101 @@ string GetFullDate(LPSYSTEMTIME systemTime)
     return ssFullDate.str();
 }
 
+/**
+ * Функция, в которой пользователь вводит свою дату и время, которые будут записаны в lpFileTime
+ */
 void FillFileTime(LPFILETIME lpFileTime)
 {
-    stringstream ss;
-    string sBuff;
+    string  sBuff,
+            sBuffPart;
     SYSTEMTIME stBuff;
-    struct tm tm;
+    WORD wTime;
+    bool incorrectInput;
     FileTimeToSystemTime(lpFileTime, &stBuff);
     cout << "Current date is " << GetFullDate(&stBuff) << '\n';
-    cout << "Input the date (day/month/year): ";
-    cin >> sBuff;
-    cin.clear();
-    cout << "Input the time (hour/minute/second): ";
-    cin >> sBuff;
-    cin.clear();
-    ss.str(sBuff);
-    ss >> get_time(&tm, "%H/%M/%S");
-    stBuff.wDay = (WORD)tm.tm_wday;
-    stBuff.wMonth = (WORD)tm.tm_mon;
-    stBuff.wYear = (WORD)tm.tm_year;
-    stBuff.wHour = (WORD)tm.tm_hour;
-    stBuff.wMinute = (WORD)tm.tm_min;
-    stBuff.wSecond = (WORD)tm.tm_sec;
-    cout << sBuff << '\n';
+    do
+    {
+        cout << "Input the date (day/month/year): ";
+        incorrectInput = false;
+        cin >> sBuff;
+        for(int i = 0; i < 2; i++)
+        {
+            sBuffPart = sBuff.substr(0, sBuff.find("/"));
+            sBuff = sBuff.substr(sBuff.find("/")+1, sBuff.length());
+            wTime = (WORD)atoi(sBuffPart.c_str());
+            if(i == 0)
+            {
+                if(wTime < 0 || wTime > 31)
+                {
+                    incorrectInput = true;
+                    break;
+                }
+                stBuff.wDay = wTime;
+            }
+            else if(i == 1)
+            {
+                if(wTime < 0 || wTime > 12)
+                {
+                    incorrectInput = true;
+                    break;
+                }
+                stBuff.wMonth = wTime;
+            }
+        }
+        if(!incorrectInput)
+        {
+            wTime = (WORD)atoi(sBuff.c_str());
+            if(wTime < 1990 || wTime > stBuff.wYear)
+            {
+                incorrectInput = true;
+            }
+            else
+                stBuff.wYear = wTime;
+        }
+        if(incorrectInput)
+            cout << "You inputted the wrong date or time, try again!\n";
+    } while(incorrectInput);
+    do
+    {
+        cout << "Input the time (hour:minute:seconds): ";
+        incorrectInput = false;
+        cin >> sBuff;
+        for(int i = 0; i < 2; i++)
+        {
+            sBuffPart = sBuff.substr(0, sBuff.find(":"));
+            sBuff = sBuff.substr(sBuff.find(":")+1, sBuff.length());
+            wTime = (WORD)atoi(sBuffPart.c_str());
+            if(i == 0)
+            {
+                if(wTime < 0 || wTime > 23)
+                {
+                    incorrectInput = true;
+                    break;
+                }
+                stBuff.wHour = wTime;
+            }
+            else if(i == 1)
+            {
+                if(wTime < 0 || wTime > 59)
+                {
+                    incorrectInput = true;
+                    break;
+                }
+                stBuff.wMinute = wTime;
+            }
+        }
+        if(!incorrectInput)
+        {
+            wTime = (WORD)atoi(sBuffPart.c_str());
+            if(wTime < 0 || wTime > 59)
+            {
+                incorrectInput = true;
+            }
+            else
+                stBuff.wSecond = wTime;
+        }
+        if(incorrectInput)
+            cout << "You inputted the wrong date or time, try again!\n";
+    } while(incorrectInput);
     SystemTimeToFileTime(&stBuff, lpFileTime);
 }

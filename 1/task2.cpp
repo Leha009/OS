@@ -93,8 +93,7 @@ void Task2Run()
 bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSize, DWORD blockSize, int operations)
 {
     LARGE_INTEGER   liFileSizeRead,
-                    liFileSizeWrite,  //Используется, чтобы ловить конец считывания
-                    liFileParts[4];        //Хранит каждые 20% от размера файла
+                    liFileSizeWrite;  //Используется, чтобы ловить конец считывания
     if(!GetFileSizeEx(hFileToCopy, liFileSize))
     {
         cout << "Can't get file size. Error code is " << GetLastError() << '\n';
@@ -223,10 +222,6 @@ void ReadEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lp
     {
         cout << "Read failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
-    /*else if(dwNumberOfBytesTransfered != 0)
-    {
-        lpOverlapped->Offset += dwNumberOfBytesTransfered;
-    }*/
     iReadCallback++;
 }
 
@@ -236,10 +231,5 @@ void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED l
     {
         cout << "Write failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
-    /*else if(dwNumberOfBytesTransfered != 0)
-    {
-        lpOverlapped->Offset += dwNumberOfBytesTransfered;
-
-    }*/
     iWriteCallback++;
 }
