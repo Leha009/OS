@@ -18,6 +18,8 @@ DWORD GetClusterMinSize(LPCSTR);
 DWORD GetBlockSize(DWORD, DWORD);
 
 LARGE_INTEGER liShift;
+int iReadCallback,
+    iWriteCallback;
 
 void Task2Run()
 {
@@ -106,6 +108,7 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
     OVERLAPPED* overRead = new OVERLAPPED[operations];
     OVERLAPPED* overWrite = new OVERLAPPED[operations];
     liShift.QuadPart = 0LL;
+    int iActualOperations;
 
     char** buffer = new char*[operations];
     for(int i = 0; i < operations; i++)
@@ -121,6 +124,8 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
 
     do 
     {
+        iActualOperations = 0;
+
         for(int i = 0; i < operations; i++)
         {
             if(liFileSizeRead.QuadPart > 0LL)
@@ -131,10 +136,16 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
                     allGood = false;
                     break;
                 }
-                SleepEx(SLEEP_TIME, true);
+                //SleepEx(SLEEP_TIME, true);
+                iActualOperations++;
                 liFileSizeRead.QuadPart -= (long long)blockSize;
             }
         }
+
+        while(allGood && iReadCallback < iActualOperations)
+            SleepEx(SLEEP_TIME, true);
+
+        iActualOperations = 0;
 
         if(allGood)
         {
@@ -148,17 +159,24 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
                         allGood = false;
                         break;
                     }
-                    SleepEx(SLEEP_TIME, true);
+                    //SleepEx(SLEEP_TIME, true);
+                    iActualOperations++;
                     liFileSizeWrite.QuadPart -= blockSize;
                 }
             }
         }
+
+        while(allGood && iWriteCallback < iActualOperations)
+            SleepEx(SLEEP_TIME, true);
+
         for(int i = 0; i < operations; i++)
         {
             overRead[i].Offset = overWrite[i].Offset = liShift.LowPart;
             overRead[i].OffsetHigh = overWrite[i].OffsetHigh = (DWORD)liShift.HighPart;
             liShift.QuadPart += (long long)blockSize;
         }
+
+        iReadCallback = iWriteCallback = 0;
     } while(allGood && liFileSizeRead.QuadPart > 0LL);
 
     for(int i = 0; i < operations; i++)
@@ -206,10 +224,11 @@ void ReadEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lp
     {
         cout << "Read failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
-    else if(dwNumberOfBytesTransfered != 0)
+    /*else if(dwNumberOfBytesTransfered != 0)
     {
         lpOverlapped->Offset += dwNumberOfBytesTransfered;
-    }
+    }*/
+    iReadCallback++;
 }
 
 void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
@@ -218,8 +237,10 @@ void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED l
     {
         cout << "Write failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
-    else if(dwNumberOfBytesTransfered != 0)
+    /*else if(dwNumberOfBytesTransfered != 0)
     {
         lpOverlapped->Offset += dwNumberOfBytesTransfered;
-    }
+
+    }*/
+    iWriteCallback++;
 }
