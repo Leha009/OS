@@ -107,7 +107,6 @@ void Task2Run()
                     allGood = false;
                     break;
                 }
-                cout << "Trans " << dwBytesTrans << '\n';   //DEBUG
                 if(!WriteFileEx(hFileToCopyIn, (LPVOID)buffer, size, &overl2, WriteEnd))
                 {
                     cout << "Writing failed! Error code is " << GetLastError() << '\n';
@@ -119,7 +118,6 @@ void Task2Run()
             } while (udwFileSize.lowPart != 0UL);
             if(allGood)
             {
-                cout << "Set pointer at " << fileCopySize.HighPart << " | " << fileCopySize.LowPart << '\n';    //DEBUG
                 SetFilePointerEx(hFileToCopyIn, fileCopySize, NULL, FILE_BEGIN);
                 SetEndOfFile(hFileToCopyIn);
             }
@@ -176,6 +174,10 @@ void ReadEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lp
     {
         cout << "Read failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
     }
+    else if(dwNumberOfBytesTransfered != 0)
+    {
+        lpOverlapped->Offset += dwNumberOfBytesTransfered;
+    }
 }
 
 void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
@@ -183,5 +185,9 @@ void WriteEnd(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED l
     if(dwErrorCode != 0UL)
     {
         cout << "Write failed! Error code is " << GetLastError() << " | " << dwErrorCode << '\n';
+    }
+    else if(dwNumberOfBytesTransfered != 0)
+    {
+        lpOverlapped->Offset += dwNumberOfBytesTransfered;
     }
 }

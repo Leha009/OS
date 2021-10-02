@@ -10,11 +10,14 @@ using namespace std;
 //#define BUFF_SIZE 1024UL
 #define SLEEP_TIME -1
 
+void ReadEnd(DWORD, DWORD, LPOVERLAPPED);
+void WriteEnd(DWORD, DWORD, LPOVERLAPPED);
+bool CopyFile_(HANDLE, HANDLE, LARGE_INTEGER*, DWORD, int);
 DWORD GetClusterMinSizeWithFileDrive(LPCSTR);
 DWORD GetClusterMinSize(LPCSTR);
 DWORD GetBlockSize(DWORD, DWORD);
-void ReadEnd(DWORD, DWORD, LPOVERLAPPED);
-void WriteEnd(DWORD, DWORD, LPOVERLAPPED);
+
+LARGE_INTEGER liShift;
 
 void Task2Run()
 {
@@ -50,77 +53,25 @@ void Task2Run()
                                 NULL);
         if(hFileToCopyIn != INVALID_HANDLE_VALUE)
         {
+            LARGE_INTEGER liFileSize;
             DWORD clusterSize = GetClusterMinSizeWithFileDrive(sBuff.c_str());
-            bool allGood = true;
-            int32_t buffer[BUFF_SIZE];
-            OVERLAPPED overlapped, overl2;
-            overlapped.Offset = overl2.Offset = 0UL;
-            DWORD size;
-            DWORD dwBytesTrans = 0UL;
-            LARGE_INTEGER fileCopySize;
-            if(!GetFileSizeEx(hFileToCopy, &fileCopySize))
-            {
-                cout << "Getting file size failed! Error code is " << GetLastError() << '\n';
-            }
-            struct dwFileSize
-            {
-                DWORD lowPart;
-                DWORD highPart;
-            } udwFileSize;
-            udwFileSize.lowPart = GetFileSize(hFileToCopy, &udwFileSize.highPart);
-            cout << "File size is " << udwFileSize.highPart << " | " << udwFileSize.lowPart << '\n';
-            DWORD start = GetTickCount();
+            DWORD blockSize;
+            int operations;
+            cout << "Input block size: " << clusterSize << "*";
+            cin >> blockSize;
+            blockSize *= clusterSize;
+
+            cout << "Input operations amount: ";
             do
             {
-                size = GetBlockSize(BUFF_SIZE < udwFileSize.lowPart ? BUFF_SIZE : udwFileSize.lowPart, clusterSize);
-                
-                if(udwFileSize.highPart < size)
-                {
-                    if(udwFileSize.highPart != 0UL)
-                    {
-                        udwFileSize.lowPart -= size-udwFileSize.highPart;
-                        udwFileSize.highPart = 0;
-                    }
-                    else
-                    {
-                        if(udwFileSize.lowPart < size)
-                            udwFileSize.lowPart = 0;
-                        else
-                            udwFileSize.lowPart -= size;
-                    }
-                }
-                else
-                {
-                    udwFileSize.highPart -= size;
-                }
-                
-                if(!ReadFileEx(hFileToCopy, (LPVOID)buffer, size, &overlapped, ReadEnd))
-                {
-                    cout << "Reading failed! Error code is " << GetLastError() << '\n';
-                    allGood = false;
-                    break;
-                }
-                SleepEx(SLEEP_TIME, true);
-                if(!GetOverlappedResult(hFileToCopy, &overlapped, &dwBytesTrans, false))
-                {
-                    cout << GetLastError();
-                    allGood = false;
-                    break;
-                }
-                cout << "Trans " << dwBytesTrans << '\n';   //DEBUG
-                if(!WriteFileEx(hFileToCopyIn, (LPVOID)buffer, size, &overl2, WriteEnd))
-                {
-                    cout << "Writing failed! Error code is " << GetLastError() << '\n';
-                    allGood = false;
-                    break;
-                }
-                SleepEx(SLEEP_TIME, true);
-            //} while (!HasOverlappedIoCompleted(&overlapped) && !HasOverlappedIoCompleted(&overl2));
-            } while (udwFileSize.lowPart != 0UL);
-            if(allGood)
+                cin >> operations;
+                if(operations < 1) 
+                    cout << "Operations amount can't be negative!\n";
+            } while(operations < 1);
+            DWORD start = GetTickCount();
+            if(CopyFile_(hFileToCopy, hFileToCopyIn, &liFileSize, blockSize, operations))
             {
-                cout << "Set pointer at " << fileCopySize.HighPart << " | " << fileCopySize.LowPart << '\n';    //DEBUG
-                SetFilePointerEx(hFileToCopyIn, fileCopySize, NULL, FILE_BEGIN);
+                SetFilePointerEx(hFileToCopyIn, liFileSize, NULL, FILE_BEGIN);
                 SetEndOfFile(hFileToCopyIn);
             }
             cout << "The copying took " << ((double)(GetTickCount()-start)/1000) << " seconds\n";
@@ -139,6 +90,85 @@ void Task2Run()
         }
     }
     system("pause");
+}
+
+bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSize, DWORD blockSize, int operations)
+{
+    LARGE_INTEGER   liFileSizeRead,
+                    liFileSizeWrite;  //Используется, чтобы ловить конец считывания
+    if(!GetFileSizeEx(hFileToCopy, liFileSize))
+    {
+        cout << "Can't get file size. Error code is " << GetLastError() << '\n';
+        return false;
+    }
+    liFileSizeWrite = liFileSizeRead = *liFileSize;
+
+    OVERLAPPED* overRead = new OVERLAPPED[operations];
+    OVERLAPPED* overWrite = new OVERLAPPED[operations];
+    liShift.QuadPart = 0LL;
+
+    char** buffer = new char*[operations];
+    for(int i = 0; i < operations; i++)
+    {
+        buffer[i] = new char[(int)blockSize];
+
+        overRead[i].Offset = overWrite[i].Offset = liShift.LowPart;
+        overRead[i].OffsetHigh = overWrite[i].OffsetHigh = (DWORD)liShift.HighPart;
+        liShift.QuadPart += (long long)blockSize;
+    }
+
+    bool allGood = true;
+
+    do 
+    {
+        for(int i = 0; i < operations; i++)
+        {
+            if(liFileSizeRead.QuadPart > 0LL)
+            {
+                if(!ReadFileEx(hFileToCopy, buffer[i], blockSize, &overRead[i], ReadEnd))
+                {
+                    cout << "Reading failed! Error code is " << GetLastError() << '\n';
+                    allGood = false;
+                    break;
+                }
+                SleepEx(SLEEP_TIME, true);
+                liFileSizeRead.QuadPart -= (long long)blockSize;
+            }
+        }
+
+        if(allGood)
+        {
+            for(int i = 0; i < operations; i++)
+            {
+                if(liFileSizeWrite.QuadPart > 0LL)
+                {
+                    if(!WriteFileEx(hFileToCopyIn, buffer[i], blockSize, &overWrite[i], WriteEnd))
+                    {
+                        cout << "Writing failed! Error code is " << GetLastError() << '\n';
+                        allGood = false;
+                        break;
+                    }
+                    SleepEx(SLEEP_TIME, true);
+                    liFileSizeWrite.QuadPart -= blockSize;
+                }
+            }
+        }
+        for(int i = 0; i < operations; i++)
+        {
+            overRead[i].Offset = overWrite[i].Offset = liShift.LowPart;
+            overRead[i].OffsetHigh = overWrite[i].OffsetHigh = (DWORD)liShift.HighPart;
+            liShift.QuadPart += (long long)blockSize;
+        }
+    } while(allGood && liFileSizeRead.QuadPart > 0LL);
+
+    for(int i = 0; i < operations; i++)
+        delete buffer[i];
+
+    delete buffer;
+    delete overRead;
+    delete overWrite;
+
+    return allGood;
 }
 
 DWORD GetClusterMinSizeWithFileDrive(LPCSTR lpFileName)

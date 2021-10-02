@@ -34,3 +34,7 @@ int main()
     } while(iMenuItem != 0);
     return 0;
 }
+
+/*
+https://docs.microsoft.com/ru-ru/windows/win32/debug/system-error-codes--0-499- - ошибки, и что они означают
+*/
