@@ -1,13 +1,9 @@
-//g++ *.cpp -lWinmm -static-libstdc++
-
 #include <iostream>
 #include <windows.h>
 #include "task2.h"
 
 using namespace std;
 
-#define BUFF_SIZE 16384UL
-//#define BUFF_SIZE 1024UL
 #define SLEEP_TIME -1
 
 void ReadEnd(DWORD, DWORD, LPOVERLAPPED);
@@ -97,13 +93,18 @@ void Task2Run()
 bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSize, DWORD blockSize, int operations)
 {
     LARGE_INTEGER   liFileSizeRead,
-                    liFileSizeWrite;  //Используется, чтобы ловить конец считывания
+                    liFileSizeWrite,  //Используется, чтобы ловить конец считывания
+                    liFileParts[4];        //Хранит каждые 20% от размера файла
     if(!GetFileSizeEx(hFileToCopy, liFileSize))
     {
         cout << "Can't get file size. Error code is " << GetLastError() << '\n';
         return false;
     }
     liFileSizeWrite = liFileSizeRead = *liFileSize;
+    liFileParts[0].QuadPart = liFileSize->QuadPart * 0.2;
+    liFileParts[1].QuadPart = liFileSize->QuadPart * 0.4;
+    liFileParts[2].QuadPart = liFileSize->QuadPart * 0.6;
+    liFileParts[3].QuadPart = liFileSize->QuadPart * 0.8;
 
     OVERLAPPED* overRead = new OVERLAPPED[operations];
     OVERLAPPED* overWrite = new OVERLAPPED[operations];
@@ -136,7 +137,6 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
                     allGood = false;
                     break;
                 }
-                //SleepEx(SLEEP_TIME, true);
                 iActualOperations++;
                 liFileSizeRead.QuadPart -= (long long)blockSize;
             }
@@ -159,7 +159,6 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
                         allGood = false;
                         break;
                     }
-                    //SleepEx(SLEEP_TIME, true);
                     iActualOperations++;
                     liFileSizeWrite.QuadPart -= blockSize;
                 }
