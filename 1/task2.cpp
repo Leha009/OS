@@ -100,10 +100,6 @@ bool CopyFile_(HANDLE hFileToCopy, HANDLE hFileToCopyIn, LARGE_INTEGER* liFileSi
         return false;
     }
     liFileSizeWrite = liFileSizeRead = *liFileSize;
-    liFileParts[0].QuadPart = liFileSize->QuadPart * 0.2;
-    liFileParts[1].QuadPart = liFileSize->QuadPart * 0.4;
-    liFileParts[2].QuadPart = liFileSize->QuadPart * 0.6;
-    liFileParts[3].QuadPart = liFileSize->QuadPart * 0.8;
 
     OVERLAPPED* overRead = new OVERLAPPED[operations];
     OVERLAPPED* overWrite = new OVERLAPPED[operations];
