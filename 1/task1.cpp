@@ -198,14 +198,15 @@ void PrintVolumeInfo(LPCSTR drive)
     TCHAR   sVolumeNameBuffer[MAX_PATH+1],
             sFileSystemNameBuffer[MAX_PATH+1];
     DWORD   dwVolumeSerialNumber = 0UL,     //Серийный номер
-            dwMaximumComponentLength = 0UL; //Макс. длина в символах компонента имена файла
+            dwMaximumComponentLength = 0UL, //Макс. длина в символах компонента имена файла
+            dwFileSystemFlags = 0UL;
     bool bSuccess = GetVolumeInformation(
                         drive,
                         sVolumeNameBuffer, 
                         MAX_PATH+1,
                         &dwVolumeSerialNumber,
                         &dwMaximumComponentLength,
-                        NULL,
+                        &dwFileSystemFlags,
                         sFileSystemNameBuffer,
                         MAX_PATH+1);
     if(bSuccess)
@@ -214,6 +215,28 @@ void PrintVolumeInfo(LPCSTR drive)
         cout << " | Serial number: " << hex << dwVolumeSerialNumber << dec << '\n';
         cout << "Max component length: " << dwMaximumComponentLength << '\n';
         cout << "fileSystemName: " << sFileSystemNameBuffer << '\n';
+        cout << "\nThe specified volume:";
+        if(dwFileSystemFlags & FILE_CASE_PRESERVED_NAMES)   cout << "\n\t- supports preserved case of file names when it places a name on disk";
+        if(dwFileSystemFlags & FILE_CASE_SENSITIVE_SEARCH)  cout << "\n\t- supports case-sensitive file names";
+        if(dwFileSystemFlags & FILE_FILE_COMPRESSION)       cout << "\n\t- supports file-based compression";
+        else if(dwFileSystemFlags & FILE_VOLUME_IS_COMPRESSED)  cout << "\n\t- is a compressed volume";
+        if(dwFileSystemFlags & FILE_NAMED_STREAMS)          cout << "\n\t- supports named streams";
+        if(dwFileSystemFlags & FILE_PERSISTENT_ACLS)        cout << "\n\t- preserves and enforces access control lists";
+        if(dwFileSystemFlags & FILE_READ_ONLY_VOLUME)       cout << "\n\t- is read-only";
+        if(dwFileSystemFlags & FILE_SEQUENTIAL_WRITE_ONCE)  cout << "\n\t- supports a single sequential write";
+        if(dwFileSystemFlags & FILE_SUPPORTS_ENCRYPTION)    cout << "\n\t- supports the Encrypted File System";
+        if(dwFileSystemFlags & FILE_SUPPORTS_EXTENDED_ATTRIBUTES)   cout << "\n\t- supports extended attributes";
+        if(dwFileSystemFlags & FILE_SUPPORTS_HARD_LINKS)    cout << "\n\t- supports hard links";
+        if(dwFileSystemFlags & FILE_SUPPORTS_OBJECT_IDS)    cout << "\n\t- supports object identifiers";
+        if(dwFileSystemFlags & FILE_SUPPORTS_OPEN_BY_FILE_ID)   cout << "\n\t- supports open by FileID";
+        if(dwFileSystemFlags & FILE_SUPPORTS_REPARSE_POINTS)    cout << "\n\t- supports reparse points";
+        if(dwFileSystemFlags & FILE_SUPPORTS_SPARSE_FILES)  cout << "\n\t- supports sparse files";
+        if(dwFileSystemFlags & FILE_SUPPORTS_TRANSACTIONS)  cout << "\n\t- supports transactions";
+        if(dwFileSystemFlags & FILE_SUPPORTS_USN_JOURNAL)   cout << "\n\t- supports update sequence number journals";
+        if(dwFileSystemFlags & FILE_UNICODE_ON_DISK)        cout << "\n\t- supports Unicode in file names as they appear on disk";
+        if(dwFileSystemFlags & FILE_VOLUME_QUOTAS)          cout << "\n\t- supports disk quotas";
+        if(dwFileSystemFlags == 0UL)                        cout << "\n\t- failed during getting flags";
+        cout << '\n';
     }
     else
     {
@@ -236,7 +259,7 @@ void PrintDiskFreeSpace(LPCSTR drive)
                     &dwTotalNumberOfClusters);
     if(bSuccess)
     {
-        cout << "\n===== DISK SPACE INFO =====\nSectors per cluster: " << dwSectorsPerCluster << "\nBytes per sector: " << dwBytesPerSector << '\n';
+        cout << "\n==== DISK SPACE INFO =====\nSectors per cluster: " << dwSectorsPerCluster << "\nBytes per sector: " << dwBytesPerSector << '\n';
         cout << "Number of free clusters: " << dwNumberOfFreeClusters << "\nTotal number of clusters: " << dwTotalNumberOfClusters << '\n';
         cout << "Free space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwNumberOfFreeClusters) << " bytes\n"; //Делишь на 1024 столько раз, сколько надо для типа размера (кбайт, мбайт, гбайт, тбайт)
         cout << "Total space: " << ((int64_t)dwSectorsPerCluster * dwBytesPerSector * dwTotalNumberOfClusters) << " bytes\n";
@@ -312,11 +335,11 @@ void CreateFile_()
     if(hFile != INVALID_HANDLE_VALUE)
     {
         cout << "The file was successfully created!\n";
+		CloseHandle(hFile);
     }
     else
     {
         cout << "Creation failed! Error code is " << GetLastError() << '\n';
-        CloseHandle(hFile);
     }
 }
 
@@ -405,6 +428,7 @@ void GetFileAttributes_()
     if(dwFileAttributes == INVALID_FILE_ATTRIBUTES)
     {
         cout << "The process of getting the file's attributes failed! Error code is " << GetLastError() << '\n';
+		CloseHandle(hFile);
         return;
     }
     cout << "The file attributes:\n";
@@ -421,7 +445,7 @@ void GetFileAttributes_()
     CloseHandle(hFile);
 }
 
-void SetFileAttributes_()
+void SetFileAttributes_()	//Поправить атрибуты
 {
     string sFileName;
     int iBuff = 0;
