@@ -2,12 +2,27 @@
 #include "useful.h"
 #include <windows.h>
 #include <math.h>
+#include <algorithm>    // std::replace
+#include <vector>
 
 int SelectMenu();
+DWORD GetPageSize();
+DWORD GetMemoryState(LPCVOID, PSIZE_T = NULL);
 void GetSystemInfo_();
 void GetMemoryStatus(bool);
 bool GetPartMemoryStatus(LPCVOID, bool);
-void ReserveVirtualMemoryInput(bool);
+void ReserveVirtualMemory(int);
+void ReserveCommitVirtualMemory(int);
+void ProtectVirtualMemory(int);
+void FreeVirtualMemory(int);
+
+void ShowAllAddresses(bool);
+void PushUpdateVector(LPVOID);
+void RemoveFromVector(LPVOID);
+bool AddressInVector(LPVOID);
+bool FreeAllAddresses();
+
+std::vector<LPVOID> vVirtualMemories;
 
 int main(int argc, char* argv[])  //Потом убрать надо
 {
@@ -19,6 +34,8 @@ int main(int argc, char* argv[])  //Потом убрать надо
             flags |= FLAG_CONVERTBYTES;
         else if(!strcmp(argv[i], "-hi")) //Помощь в вводе (вывод констант там, где надо)
             flags |= FLAG_HELPINPUT;
+        else if(!strcmp(argv[i], "-sa")) //Вывод адрессов, которые резервировали через VirtualAlloc
+            flags |= FLAG_SHOWADDRESSES;
     }
     do
     {
@@ -51,7 +68,37 @@ int main(int argc, char* argv[])  //Потом убрать надо
         else if(iMenuItem == 4)
         {
             system("cls");
-            ReserveVirtualMemoryInput(HelpInput(flags));
+            ReserveVirtualMemory(flags);
+            system("pause");
+        }
+        else if(iMenuItem == 5)
+        {
+            system("cls");
+            ReserveCommitVirtualMemory(flags);
+            system("pause");
+        }
+        else if(iMenuItem == 7)
+        {
+            system("cls");
+            if(vVirtualMemories.size() > 0)
+                ProtectVirtualMemory(flags);
+            else
+                std::cout << "No addresses allocated yet! Allocate first (options 4, 5)\n";
+            system("pause");
+        }
+        else if(iMenuItem == 8)
+        {
+            system("cls");
+            if(vVirtualMemories.size() > 0)
+                FreeVirtualMemory(flags);
+            else
+                std::cout << "No addresses allocated yet! Allocate first (options 4, 5)\n";
+            system("pause");
+        }
+        else if(iMenuItem == 9)
+        {
+            system("cls");
+            ShowAllAddresses(ConvertBytes(flags));
             system("pause");
         }
     } while(iMenuItem != 0);
@@ -66,14 +113,37 @@ int SelectMenu()
     std::cout << "2 - Get memory status\n";
     std::cout << "3 - Get status of a specific part of memory\n";
     std::cout << "4 - Reserve virtual memory\n";
+    std::cout << "5 - Reserve virtual memory and (or) commit physical memory\n";
+    std::cout << "7 - Set protection flags for virtual memory\n";
+    std::cout << "8 - Free virtual memory\n";
+    std::cout << "9 - Show all addresses of the virtual memory in this process\n";
     std::cout << "0 - Back to the main menu\n";
     do
     {
         std::cin >> iMenuItem;
-        if(iMenuItem < 0 || iMenuItem > 4) 
+        if(iMenuItem < 0 || iMenuItem > 9) 
             std::cout << "There is no such menu item! Try again.\n";
-    } while(iMenuItem < 0 || iMenuItem > 4);
+    } while(iMenuItem < 0 || iMenuItem > 9);
     return iMenuItem;
+}
+
+DWORD GetPageSize()
+{
+    SYSTEM_INFO sInfo;
+    GetSystemInfo(&sInfo);
+    return sInfo.dwPageSize;
+}
+
+DWORD GetMemoryState(LPCVOID lpAddress, PSIZE_T RegionSize)
+{
+    MEMORY_BASIC_INFORMATION memoryInfo;
+    if(VirtualQuery(lpAddress, &memoryInfo, sizeof(memoryInfo)) == ERROR_INVALID_PARAMETER)
+    {
+        return 0UL;
+    }
+    if(RegionSize != NULL)
+        *RegionSize = memoryInfo.RegionSize;
+    return memoryInfo.State;
 }
 
 //https://tinyurl.com/fsjr5zu4
@@ -107,8 +177,12 @@ void GetSystemInfo_()
     std::cout << "OEM ID: " << sInfo.dwOemId << '\n';
     std::cout << "Minimum application address: " << sInfo.lpMinimumApplicationAddress << '\n';
     std::cout << "Maximum application address: " << sInfo.lpMaximumApplicationAddress << '\n';
-    std::cout << "A mask representing the set of processors configured into the system: " << sInfo.dwActiveProcessorMask << '\n';
-    std::cout << "The number of logical processors in the current group: " << sInfo.dwNumberOfProcessors << '\n';
+    std::cout << "A mask representing the set of processors configured into the system: ";
+    for(int i = 0; i < 32; ++i)
+    {
+        std::cout << ((sInfo.dwActiveProcessorMask >> i) & 1) << ' ';
+    }
+    std::cout << "\nThe number of logical processors in the current group: " << sInfo.dwNumberOfProcessors << '\n';
     std::cout << "The granularity for the starting address at which virtual memory can be allocated: " << sInfo.dwAllocationGranularity << '\n';
     std::cout << "The architecture-dependent processor level: " << sInfo.wProcessorLevel << '\n';
     //Processor features: https://tinyurl.com/6r8k392d
@@ -230,8 +304,7 @@ void GetMemoryStatus(bool bConvertToMaximum)
 bool GetPartMemoryStatus(LPCVOID lpAddress, bool convertBytes)
 {
     MEMORY_BASIC_INFORMATION memoryInfo;
-    SIZE_T dwLength;
-    if(VirtualQuery(lpAddress, &memoryInfo, dwLength) == ERROR_INVALID_PARAMETER)
+    if(VirtualQuery(lpAddress, &memoryInfo, sizeof(memoryInfo)) == ERROR_INVALID_PARAMETER)
     {
         return false;
     }
@@ -270,40 +343,27 @@ bool GetPartMemoryStatus(LPCVOID lpAddress, bool convertBytes)
     return true;
 }
 
-void ReserveVirtualMemoryInput(bool helpInput)
+void ReserveVirtualMemory(int iFlags)
 {
     LPVOID  lpAddress = NULL,
             lpResult = NULL;
     DWORDLONG dwSize;
     DWORD   flAllocationType,
-            flProtect;
-    std::cout << "Input the pointer of the beginning of the region to reserve memory (input 0 for auto mode): ";
+            flProtect,
+            dwPageSize = GetPageSize();
+    if(ShowAllAddressesInProccess(iFlags))
+        ShowAllAddresses(ConvertBytes(iFlags));
+    std::cout << "Input the pointer (0x...) of the beginning of the region to reserve memory (input 0 for auto mode): ";
     std::cin >> lpAddress;
-    std::cout << "\nInput the size of the region in bytes: ";
-    std::cin >> dwSize;
-    std::cout << "\nInput the type of memory allocation: ";
-    if(helpInput)
+    std::cout << "\nInput the number of the region in bytes: " << dwPageSize << '*';
+    do
     {
-        std::cout << "\n\tMEM_COMMIT - 0x00001000 | MEM_RESERVE - 0x00002000 | MEM_RESET - 0x00080000 | MEM_RESET_UNDO - 0x1000000\n";
-        std::cout << "Input here: ";
-    }
-    std::cin >> std::hex >> flAllocationType;
-    std::cout << "\nInput the memory protection for the region of pages to be allocated: ";
-    if(helpInput)
-    {
-        std::cout << "\n\tPAGE_EXECUTE - 0x10 | PAGE_EXECUTE_READ - 0x20 | PAGE_EXECUTE_READWRITE - 0x40\n";
-        std::cout << "\tPAGE_EXECUTE_WRITECOPY - 0x80 | PAGE_NOACCESS - 0x01 | PAGE_READONLY - 0x02\n";
-        std::cout << "\tPAGE_READWRITE - 0x04 | PAGE_WRITECOPY - 0x08\n";
-        std::cout << "\tPAGE_TARGETS_INVALID - 0x40000000 | PAGE_TARGETS_NO_UPDATE - 0x40000000\n";
-        std::cout << "\n\t\tMODIFIERS\n";
-        std::cout << "\tPAGE_GUARD - 0x100 | This value cannot be used with PAGE_NOACCESS\n";
-        std::cout << "\tPAGE_NOCACHE - 0x200 | This value cannot be used with PAGE_NOACCESS\n";
-        std::cout << "\tPAGE_GUARD - 0x100 | This flag cannot be used with the PAGE_GUARD, PAGE_NOACCESS, or PAGE_WRITECOMBINE flags\n";
-        std::cout << "\tPAGE_WRITECOMBINE - 0x400 | This flag cannot be specified with the PAGE_NOACCESS, PAGE_GUARD and PAGE_NOCACHE flags\n";
-        std::cout << "Input here: ";
-    }
-    std::cin >> std::hex >> flProtect;
-    lpResult = VirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
+        std::cin >> dwSize;
+        if(dwSize < 1ULL)
+            std::cout << "The number must be more than 0!\n";
+    } while(dwSize < 1ULL);
+    dwSize *= dwPageSize;
+    lpResult = VirtualAlloc(lpAddress, dwSize, MEM_RESERVE, PAGE_READWRITE);
     if(lpResult == NULL)
     {
         std::cout << "Failed to reserve virtual memory. Error code is " << GetLastError() << '\n';
@@ -311,5 +371,250 @@ void ReserveVirtualMemoryInput(bool helpInput)
     else
     {
         std::cout << "The base address of the allocated region of pages: " << lpResult << '\n';
+        PushUpdateVector(lpResult);
     }
+}
+
+void ReserveCommitVirtualMemory(int iFlags)
+{
+    LPVOID  lpAddress = NULL,
+            lpResult = NULL;
+    DWORDLONG dwSize;
+    DWORD   flAllocationType,
+            flProtect,
+            dwMemoryState,
+            dwPageSize = GetPageSize();
+    bool    bStop = false;
+    if(ShowAllAddressesInProccess(iFlags))
+        ShowAllAddresses(ConvertBytes(iFlags));
+    std::cout << "Input the pointer (0x...) of the beginning of the region to reserve memory (input 0 for auto mode): ";
+    do
+    {
+        std::cin >> std::hex >> lpAddress >> std::dec;
+        dwMemoryState = GetMemoryState((LPVOID)lpAddress, &dwSize);
+        if(dwMemoryState == 0UL)
+        {
+            std::cout << "You inputted wrong address, input the new one!\n";
+        }
+        else if(dwMemoryState & MEM_COMMIT)
+        {
+            std::cout << "This address is already commited, input the new one!\n";
+        }
+        else if(dwMemoryState == MEM_RESERVE)
+        {
+            std::cout << "This address will be commited!\n";
+            flAllocationType = MEM_COMMIT;
+            bStop = true;
+        }
+        else
+        {
+            flAllocationType = MEM_RESERVE | MEM_COMMIT;
+            bStop = true;
+        }
+    } while(!bStop);
+    if(flAllocationType == (MEM_RESERVE | MEM_COMMIT))
+    {
+        std::cout << "\nInput the size of the region in bytes: " << dwPageSize << '*';
+        do
+        {
+            std::cin >> dwSize;
+            if(dwSize < 1ULL)
+                std::cout << "The number must be more than 0!\n";
+        } while(dwSize < 1ULL);
+    }
+    lpResult = VirtualAlloc(lpAddress, dwSize, flAllocationType, PAGE_READWRITE);
+    if(lpResult == NULL)
+    {
+        std::cout << "Failed to reserve and (or) commit virtual memory. Error code is " << GetLastError() << '\n';
+    }
+    else
+    {
+        std::cout << "The base address of the allocated region of pages: " << lpResult << '\n';
+        PushUpdateVector(lpResult);
+    }
+}
+
+void ProtectVirtualMemory(int iFlags)
+{
+    LPVOID lpAddress = NULL;
+    DWORDLONG dwSize;
+    DWORD flNewProtect,
+          flOldProtect;
+    bool    bIsAddressInVector = false;
+    if(ShowAllAddressesInProccess(iFlags))
+        ShowAllAddresses(ConvertBytes(iFlags));
+    std::cout << "Input the pointer (0x...) of the beginning of the region of pages of some virtual memory: ";
+    do
+    {
+        std::cin >> std::hex >> lpAddress >> std::dec;
+        bIsAddressInVector = AddressInVector(lpAddress);
+        if(!bIsAddressInVector)
+            std::cout << "This address isn't in list of virtual addresses of this process! Input again\n";
+    } while(!bIsAddressInVector);
+    GetMemoryState(lpAddress, &dwSize);
+    std::cout << "Input the new protection flag (0x...): ";
+    if(HelpInput(iFlags))
+    {
+        std::cout << "\nAvailable flags:"
+        << "\n\tPAGE_EXECUTE - 0x10 | Enables execute access to the COMMITTED region of pages"
+        << "\n\tPAGE_EXECUTE_READ - 0x20 | Enables execute or read-only access to the COMMITTED region of pages"
+        << "\n\tPAGE_EXECUTE_READWRITE - 0x40 | Enables execute, read-only, or read/write access to the COMMITTED region of pages"
+        << "\n\tPAGE_NOACCESS - 0x01 | Disables all access to the COMMITTED region of pages"
+        << "\n\tPAGE_READONLY - 0x02 | Enables read-only access to the COMMITTED region of pages"
+        << "\n\tPAGE_READWRITE - 0x04 | Enables read-only or read/write access to the COMMITTED region of pages"
+        << "\nInput the new protection flag here: ";
+    }
+    std::cin >> std::hex >> flNewProtect >> std::dec;
+    if(!VirtualProtect(lpAddress, dwSize, flNewProtect, &flOldProtect))
+    {
+        std::cout << "Failed to set a new protect flag. Error code is " << GetLastError() << '\n';
+    }
+    else
+    {
+        std::cout << "You changed protection flag from 0x" << std::hex << flOldProtect << " to 0x" << flNewProtect
+        << "\nChanged address: " << lpAddress << std::dec << '\n';
+    }
+}
+
+void FreeVirtualMemory(int iFlags)
+{
+    LPVOID lpAddress;
+    SIZE_T dwSize;
+    DWORD dwFreeType,
+          dwState;
+    bool bIsAddressInVector = true,
+         bDecommitAndRelease;
+    if(ShowAllAddressesInProccess(iFlags))
+        ShowAllAddresses(ConvertBytes(iFlags));
+    std::cout << "Input the pointer (0x...) of the beginning of the region of pages of some virtual memory (input 0 to free all regions of pages): ";
+    do
+    {
+        std::cin >> std::hex >> lpAddress >> std::dec;
+        if(lpAddress != NULL)
+        {
+            bIsAddressInVector = AddressInVector(lpAddress);
+            if(!bIsAddressInVector)
+                std::cout << "This address isn't in list of virtual addresses of this process! Input again\n";
+        }
+    } while(!bIsAddressInVector);
+    if(lpAddress == NULL)   //FREE ALL REGIONS
+    {
+        if(!FreeAllAddresses())
+            std::cout << "Failed to free all virtual memories. Error code is " << GetLastError() << '\n';
+    }
+    else
+    {
+        dwState = GetMemoryState(lpAddress, &dwSize);
+        if(dwState == MEM_COMMIT)
+        {
+            std::cout << "Do you want to decommit and release this memory? Input 1 for yes, 0 otherwise: ";
+            std::cin >> bDecommitAndRelease;
+            if(bDecommitAndRelease)
+            {
+                dwFreeType = MEM_RELEASE;
+                dwSize = 0ULL;
+            }
+            else
+                dwFreeType = MEM_DECOMMIT;
+        }
+        else
+        {
+            dwFreeType = MEM_DECOMMIT;
+        }
+        if(!VirtualFree(lpAddress, dwSize, dwFreeType))
+        {
+            std::cout << "Failed to free virtual memory. Error code is " << GetLastError() << '\n';
+        }
+        else
+        {
+            std::cout << "Memory at "<< std::hex << lpAddress << std::dec << " successfully freed!\n";
+            if(!(dwFreeType == MEM_DECOMMIT && dwState == MEM_COMMIT))
+                RemoveFromVector(lpAddress);
+        }
+    }
+}
+
+    //============== FOR VECTOR ==============//
+
+void ShowAllAddresses(bool bConvertBytes)
+{
+    if(vVirtualMemories.size() < 1)
+    {
+        std::cout << "No addresses allocated yet\n";
+    }
+    else
+    {
+        DWORD dwState;
+        SIZE_T dwSize;
+        std::cout << "Allocated addresses:\n";
+        for(LPVOID address : vVirtualMemories)
+        {
+            dwState = GetMemoryState(address, &dwSize);
+            std::cout << "Address is " << std::hex << address
+            << (dwState == MEM_COMMIT ? " (committed memory)" : " (not committed memory)") << std::dec;
+            if(bConvertBytes)
+            {
+                std::cout << " Size is " << ConvertBytesToMaximum(dwSize) << '\n';
+            }
+            else
+            {
+                std::cout << " Size is " << dwSize << "bytes\n";
+            }
+            
+        }
+    }
+}
+
+void PushUpdateVector(LPVOID lpAddress)
+{
+    for(LPVOID address : vVirtualMemories)
+    {
+        if(address == lpAddress)
+        {
+            return;
+        }
+    }
+    vVirtualMemories.push_back(lpAddress);
+}
+
+void RemoveFromVector(LPVOID lpAddress)
+{
+    for(auto it = vVirtualMemories.begin(); it != vVirtualMemories.end();)
+    {
+        if(*it == lpAddress)
+        {
+            it = vVirtualMemories.erase(it);
+            return;
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+bool AddressInVector(LPVOID lpAddress)
+{
+    for(LPVOID address : vVirtualMemories)
+    {
+        if(address == lpAddress)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FreeAllAddresses()
+{
+    SIZE_T dwSize;
+    for(LPVOID address : vVirtualMemories)
+    {
+        GetMemoryState(address, &dwSize);
+        if(!VirtualFree(address, dwSize, MEM_RELEASE))
+        {
+            return false;
+        }
+    }
+    return true;
 }

@@ -1,14 +1,17 @@
 #include <string>
 
+#define FLAG_CONVERTBYTES 1
+#define FLAG_HELPINPUT 2
+#define FLAG_SHOWADDRESSES 4
+
 /*Flags
 1 - convert bytes to kb/mb/gb/tb
 2 - help input (output contants where it needed)
+4 - print all allocated addresses
 */
-#define ConvertBytes(flags) (flags & 1) > 0
-#define HelpInput(flags) (flags & 2) > 0
-
-#define FLAG_CONVERTBYTES 1
-#define FLAG_HELPINPUT 2
+#define ConvertBytes(flags) (flags & FLAG_CONVERTBYTES) > 0
+#define HelpInput(flags) (flags & FLAG_HELPINPUT) > 0
+#define ShowAllAddressesInProccess(flags) (flags & FLAG_SHOWADDRESSES) > 0
 
 template <typename T>
 std::string ConvertBytesToMaximum(T numberToConvert)
