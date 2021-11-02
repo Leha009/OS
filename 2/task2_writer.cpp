@@ -34,19 +34,21 @@ int main()
                 CopyMemory(lpMapView, sBuff.c_str(), sBuff.length()*STRSIZE);
                 std::cout << "Do not press any key until the reader program stops reading!"
                 << "\nWhen it's done, press any key!\n";
-                getchar();
+                system("pause");
                 UnmapViewOfFile(lpMapView);
                 lpMapView = NULL;
             }
             else
             {
                 std::cout << "Failed to map a view of a file mapping. Error code is " << GetLastError() << '\n';
+                system("pause");
             }
             CloseHandle(hFileMapping);
         }
         else
         {
             std::cout << "Failed to create file mapping. Error code is " << GetLastError() << '\n';
+            system("pause");
         }
         CloseHandle(hFile);
     }

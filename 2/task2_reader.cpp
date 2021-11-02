@@ -38,5 +38,6 @@ int main()
     {
         std::cout << "Failed to open file mapping. Error code is " << GetLastError() << '\n';
     }
+    system("pause");
     return 0;
 }

@@ -3,7 +3,16 @@
 #include <windows.h>
 #include <math.h>
 #include <vector>
-#include <string>
+
+#ifdef _UNICODE
+#define MAPPING_LOWMAX 512UL    //WCHAR
+#define STRING std::wstring
+#define STRSIZE sizeof(WCHAR)
+#else
+#define MAPPING_LOWMAX 256UL    //CHAR
+#define STRING std::string
+#define STRSIZE sizeof(CHAR)
+#endif
 
 int SelectMenu();
 DWORD GetPageSize();
@@ -446,7 +455,7 @@ void ReserveCommitVirtualMemory(int iFlags)
 
 void InputDataToMemory(int iFlags)
 {
-    std::string sData;
+    STRING sData;
     LPVOID lpAddress;
     bool bIsAddressInVector = false;
     if(ShowAllAddressesInProccess(iFlags))
@@ -455,7 +464,6 @@ void InputDataToMemory(int iFlags)
     std::cin >> std::hex >> lpAddress >> std::dec;
     std::cout << "Input the string to write to memory:\n";
     std::cin.ignore();
-    //std::cin >> sData;
     std::getline(std::cin, sData);
     if(lpAddress != NULL)
     {
@@ -469,7 +477,7 @@ void InputDataToMemory(int iFlags)
             GetMemoryStateEx((LPVOID)lpAddress, NULL, &dwProtect);
             if(dwProtect & (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY | PAGE_READWRITE | PAGE_WRITECOPY))
             {
-                CopyMemory(lpAddress, sData.c_str(), sData.length()*sizeof(char));
+                CopyMemory(lpAddress, sData.c_str(), sData.length()*STRSIZE);
                 std::cout << std::hex << lpAddress << std::dec << " address filled with this your string:\n";
                 char* spAddress = (char*)lpAddress;
                 for(size_t i = 0; i < sData.length(); ++i)
@@ -608,7 +616,7 @@ void ShowAllAddresses(bool bConvertBytes)
             }
             else
             {
-                std::cout << " Size is " << dwSize << "bytes\n";
+                std::cout << " Size is " << dwSize << " bytes\n";
             }
             
         }
