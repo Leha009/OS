@@ -2,7 +2,6 @@
 #include "useful.h"
 #include <windows.h>
 #include <math.h>
-#include <algorithm>    // std::replace
 #include <vector>
 #include <string>
 
