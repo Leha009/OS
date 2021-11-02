@@ -4,15 +4,17 @@
 #include <math.h>
 #include <algorithm>    // std::replace
 #include <vector>
+#include <string>
 
 int SelectMenu();
 DWORD GetPageSize();
-DWORD GetMemoryState(LPCVOID, PSIZE_T = NULL);
+DWORD GetMemoryStateEx(LPCVOID, PSIZE_T = NULL, PDWORD = NULL);
 void GetSystemInfo_();
 void GetMemoryStatus(bool);
 bool GetPartMemoryStatus(LPCVOID, bool);
 void ReserveVirtualMemory(int);
 void ReserveCommitVirtualMemory(int);
+void InputDataToMemory(int);
 void ProtectVirtualMemory(int);
 void FreeVirtualMemory(int);
 
@@ -77,6 +79,12 @@ int main(int argc, char* argv[])  //Потом убрать надо
             ReserveCommitVirtualMemory(flags);
             system("pause");
         }
+        else if(iMenuItem == 6)
+        {
+            system("cls");
+            InputDataToMemory(flags);
+            system("pause");
+        }
         else if(iMenuItem == 7)
         {
             system("cls");
@@ -114,6 +122,7 @@ int SelectMenu()
     std::cout << "3 - Get status of a specific part of memory\n";
     std::cout << "4 - Reserve virtual memory\n";
     std::cout << "5 - Reserve virtual memory and (or) commit physical memory\n";
+    std::cout << "6 - Input data to memory\n";
     std::cout << "7 - Set protection flags for virtual memory\n";
     std::cout << "8 - Free virtual memory\n";
     std::cout << "9 - Show all addresses of the virtual memory in this process\n";
@@ -134,7 +143,7 @@ DWORD GetPageSize()
     return sInfo.dwPageSize;
 }
 
-DWORD GetMemoryState(LPCVOID lpAddress, PSIZE_T RegionSize)
+DWORD GetMemoryStateEx(LPCVOID lpAddress, PSIZE_T RegionSize, PDWORD dwProtect)
 {
     MEMORY_BASIC_INFORMATION memoryInfo;
     if(VirtualQuery(lpAddress, &memoryInfo, sizeof(memoryInfo)) == ERROR_INVALID_PARAMETER)
@@ -143,6 +152,8 @@ DWORD GetMemoryState(LPCVOID lpAddress, PSIZE_T RegionSize)
     }
     if(RegionSize != NULL)
         *RegionSize = memoryInfo.RegionSize;
+    if(dwProtect != NULL)
+        *dwProtect = memoryInfo.Protect;
     return memoryInfo.State;
 }
 
@@ -391,7 +402,7 @@ void ReserveCommitVirtualMemory(int iFlags)
     do
     {
         std::cin >> std::hex >> lpAddress >> std::dec;
-        dwMemoryState = GetMemoryState((LPVOID)lpAddress, &dwSize);
+        dwMemoryState = GetMemoryStateEx((LPVOID)lpAddress, &dwSize);
         if(dwMemoryState == 0UL)
         {
             std::cout << "You inputted wrong address, input the new one!\n";
@@ -434,6 +445,46 @@ void ReserveCommitVirtualMemory(int iFlags)
     }
 }
 
+void InputDataToMemory(int iFlags)
+{
+    std::string sData;
+    LPVOID lpAddress;
+    bool bIsAddressInVector = false;
+    if(ShowAllAddressesInProccess(iFlags))
+        ShowAllAddresses(ConvertBytes(iFlags));
+    std::cout << "Input the pointer (0x...) of the beginning of the region of pages of some virtual memory: ";
+    std::cin >> std::hex >> lpAddress >> std::dec;
+    std::cout << "Input the string to write to memory:\n";
+    std::cin.ignore();
+    //std::cin >> sData;
+    std::getline(std::cin, sData);
+    if(lpAddress != NULL)
+    {
+        if(sData.length() < 1)
+        {
+            std::cout << "You didn't input the string, nothing to write to memory!\n";
+        }
+        else
+        {
+            DWORD dwProtect;
+            GetMemoryStateEx((LPVOID)lpAddress, NULL, &dwProtect);
+            if(dwProtect & (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY | PAGE_READWRITE | PAGE_WRITECOPY))
+            {
+                CopyMemory(lpAddress, sData.c_str(), sData.length()*sizeof(char));
+                std::cout << std::hex << lpAddress << std::dec << " address filled with this your string:\n";
+                char* spAddress = (char*)lpAddress;
+                for(size_t i = 0; i < sData.length(); ++i)
+                    std::cout << spAddress[i];
+                std::cout << '\n';
+            }
+            else
+            {
+                std::cout << "You can't write any data using this address!\n";
+            }
+        }
+    }
+}
+
 void ProtectVirtualMemory(int iFlags)
 {
     LPVOID lpAddress = NULL;
@@ -451,7 +502,7 @@ void ProtectVirtualMemory(int iFlags)
         if(!bIsAddressInVector)
             std::cout << "This address isn't in list of virtual addresses of this process! Input again\n";
     } while(!bIsAddressInVector);
-    GetMemoryState(lpAddress, &dwSize);
+    GetMemoryStateEx(lpAddress, &dwSize);
     std::cout << "Input the new protection flag (0x...): ";
     if(HelpInput(iFlags))
     {
@@ -504,7 +555,7 @@ void FreeVirtualMemory(int iFlags)
     }
     else
     {
-        dwState = GetMemoryState(lpAddress, &dwSize);
+        dwState = GetMemoryStateEx(lpAddress, &dwSize);
         if(dwState == MEM_COMMIT)
         {
             std::cout << "Do you want to decommit and release this memory? Input 1 for yes, 0 otherwise: ";
@@ -546,10 +597,10 @@ void ShowAllAddresses(bool bConvertBytes)
     {
         DWORD dwState;
         SIZE_T dwSize;
-        std::cout << "Allocated addresses:\n";
+        std::cout << "Allocated addresses in this process:\n";
         for(LPVOID address : vVirtualMemories)
         {
-            dwState = GetMemoryState(address, &dwSize);
+            dwState = GetMemoryStateEx(address, &dwSize);
             std::cout << "Address is " << std::hex << address
             << (dwState == MEM_COMMIT ? " (committed memory)" : " (not committed memory)") << std::dec;
             if(bConvertBytes)
@@ -610,7 +661,7 @@ bool FreeAllAddresses()
     SIZE_T dwSize;
     for(LPVOID address : vVirtualMemories)
     {
-        GetMemoryState(address, &dwSize);
+        GetMemoryStateEx(address, &dwSize);
         if(!VirtualFree(address, dwSize, MEM_RELEASE))
         {
             return false;
