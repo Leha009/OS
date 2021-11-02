@@ -2,13 +2,9 @@
 #include <windows.h>
 
 #ifdef _UNICODE
-#define MAPPING_LOWMAX 512UL    //WCHAR
 #define STRING std::wstring
-#define STRSIZE sizeof(WCHAR)
 #else
-#define MAPPING_LOWMAX 256UL    //CHAR
 #define STRING std::string
-#define STRSIZE sizeof(CHAR)
 #endif
 
 int main()
@@ -23,7 +19,7 @@ int main()
         LPVOID lpMapView = MapViewOfFile(hFileMapping, FILE_MAP_READ, 0UL, 0UL, 0UL);
         if(lpMapView != NULL)
         {
-            std::cout << "Data in this file mapping:\n";
+            std::cout << "Written data at address " << lpMapView << "\n";
             std::cout << (TCHAR*)lpMapView << '\n';
             UnmapViewOfFile(lpMapView);
             lpMapView = NULL;

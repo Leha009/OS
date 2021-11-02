@@ -5,11 +5,9 @@
 #include <vector>
 
 #ifdef _UNICODE
-#define MAPPING_LOWMAX 512UL    //WCHAR
 #define STRING std::wstring
 #define STRSIZE sizeof(WCHAR)
 #else
-#define MAPPING_LOWMAX 256UL    //CHAR
 #define STRING std::string
 #define STRSIZE sizeof(CHAR)
 #endif
@@ -67,7 +65,9 @@ int main(int argc, char* argv[])  //Потом убрать надо
         {
             system("cls");
             LPVOID lpAddress;
-            std::cout << "Input the pointer of desired part of memory: ";
+            if(ShowAllAddressesInProccess(flags))
+                ShowAllAddresses(ConvertBytes(flags));
+            std::cout << "Input the pointer (0x...) of desired part of memory: ";
             std::cin >> lpAddress;
             if(!GetPartMemoryStatus(lpAddress, ConvertBytes(flags)))
             {
@@ -134,7 +134,7 @@ int SelectMenu()
     std::cout << "7 - Set protection flags for virtual memory\n";
     std::cout << "8 - Free virtual memory\n";
     std::cout << "9 - Show all addresses of the virtual memory in this process\n";
-    std::cout << "0 - Back to the main menu\n";
+    std::cout << "0 - Exit\n";
     do
     {
         std::cin >> iMenuItem;
@@ -196,7 +196,7 @@ void GetSystemInfo_()
     std::cout << "OEM ID: " << sInfo.dwOemId << '\n';
     std::cout << "Minimum application address: " << sInfo.lpMinimumApplicationAddress << '\n';
     std::cout << "Maximum application address: " << sInfo.lpMaximumApplicationAddress << '\n';
-    std::cout << "A mask representing the set of processors configured into the system: ";
+    std::cout << "A mask representing the set of processors configured into the system:\n";
     for(int i = 0; i < 32; ++i)
     {
         std::cout << ((sInfo.dwActiveProcessorMask >> i) & 1) << ' ';
@@ -348,7 +348,7 @@ bool GetPartMemoryStatus(LPCVOID lpAddress, bool convertBytes)
     else
         std::cout << "Unknown\n";
 
-    std::cout << "The access protection of the pages in the region: " << memoryInfo.Protect << '\n';
+    std::cout << "The access protection of the pages in the region: 0x" << std::hex << memoryInfo.Protect << std::dec << '\n';
     //Тут, если что, можно вывести в виде текста: https://tinyurl.com/d28h342b
     std::cout << "The type of pages in the region: ";
     if(memoryInfo.Type == MEM_IMAGE)
@@ -406,7 +406,7 @@ void ReserveCommitVirtualMemory(int iFlags)
     bool    bStop = false;
     if(ShowAllAddressesInProccess(iFlags))
         ShowAllAddresses(ConvertBytes(iFlags));
-    std::cout << "Input the pointer (0x...) of the beginning of the region to reserve memory (input 0 for auto mode): ";
+    std::cout << "Input the pointer (0x...) of the beginning of the region to reserve and (or) commit memory (input 0 for auto mode): ";
     do
     {
         std::cin >> std::hex >> lpAddress >> std::dec;
@@ -440,6 +440,7 @@ void ReserveCommitVirtualMemory(int iFlags)
             if(dwSize < 1ULL)
                 std::cout << "The number must be more than 0!\n";
         } while(dwSize < 1ULL);
+        dwSize *= 4096UL;
     }
     lpResult = VirtualAlloc(lpAddress, dwSize, flAllocationType, PAGE_READWRITE);
     if(lpResult == NULL)
@@ -558,7 +559,9 @@ void FreeVirtualMemory(int iFlags)
     if(lpAddress == NULL)   //FREE ALL REGIONS
     {
         if(!FreeAllAddresses())
-            std::cout << "Failed to free all virtual memories. Error code is " << GetLastError() << '\n';
+            std::cout << "Failed to free all regioins. Error code is " << GetLastError() << '\n';
+        else
+            std::cout << "All regions successfully freed!\n";
     }
     else
     {
@@ -665,14 +668,24 @@ bool AddressInVector(LPVOID lpAddress)
 
 bool FreeAllAddresses()
 {
-    SIZE_T dwSize;
-    for(LPVOID address : vVirtualMemories)
+    SIZE_T  dwSize;
+    DWORD   dwState,
+            dwFreeType;
+    for(LPVOID lpAddress : vVirtualMemories)
     {
-        GetMemoryStateEx(address, &dwSize);
-        if(!VirtualFree(address, dwSize, MEM_RELEASE))
+        dwState = GetMemoryStateEx(lpAddress, &dwSize);
+        if(dwState == MEM_COMMIT)
+        {
+            dwFreeType = MEM_RELEASE;
+            dwSize = 0UL;
+        }
+        else
+            dwFreeType = MEM_DECOMMIT;
+        if(!VirtualFree(lpAddress, dwSize, dwFreeType))
         {
             return false;
         }
     }
+    vVirtualMemories.clear();
     return true;
 }

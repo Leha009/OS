@@ -28,7 +28,7 @@ int main()
             LPVOID lpMapView = MapViewOfFile(hFileMapping, FILE_MAP_ALL_ACCESS, 0UL, 0UL, 0UL);
             if(lpMapView != NULL)
             {
-                std::cout << "Input the data to write to the mapping file: ";
+                std::cout << "Input the data to write at address " << lpMapView << '\n';
                 std::cin.ignore();
                 std::getline(std::cin, sBuff);
                 CopyMemory(lpMapView, sBuff.c_str(), sBuff.length()*STRSIZE);
