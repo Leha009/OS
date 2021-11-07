@@ -190,7 +190,7 @@ void GetSystemInfo_()
             std::cout << "Unknown\n";
             break;
         default:
-            std::cout << "ARM64?\n";
+            std::cout << "ARM64\n";
     }
     std::cout << "Page size: " << sInfo.dwPageSize << '\n';
     std::cout << "OEM ID: " << sInfo.dwOemId << '\n';
@@ -273,41 +273,49 @@ void GetSystemInfo_()
 //https://tinyurl.com/fn8rac99
 void GetMemoryStatus(bool bConvertToMaximum)
 {
-    MEMORYSTATUS memoryStatus;
-    GlobalMemoryStatus(&memoryStatus);
-    //std::cout << "The size of the MEMORYSTATUS data structure: " << memoryStatus.dwLength << '\n';
-    std::cout << "The approximate percentage of physical memory that is in use: " << memoryStatus.dwMemoryLoad << '\n';
-    std::cout << "The amount of actual physical memory: ";
-    if(bConvertToMaximum)
-        std::cout << ConvertBytesToMaximum(memoryStatus.dwTotalPhys) << '\n';
+    MEMORYSTATUSEX memoryStatus;
+    memoryStatus.dwLength = sizeof(memoryStatus);
+    if(GlobalMemoryStatusEx(&memoryStatus))
+    {
+        //std::cout << "The size of the MEMORYSTATUS data structure: " << memoryStatus.dwLength << '\n';
+        std::cout << "The approximate percentage of physical memory that is in use: " << memoryStatus.dwMemoryLoad << '\n';
+        std::cout << "The amount of actual physical memory: ";
+        if(bConvertToMaximum)
+            std::cout << ConvertBytesToMaximum(memoryStatus.ullTotalPhys) << '\n';
+        else
+            std::cout << memoryStatus.ullTotalPhys << " B\n";
+        std::cout << "The amount of physical memory currently available: ";
+        if(bConvertToMaximum)
+            std::cout << ConvertBytesToMaximum(memoryStatus.ullAvailPhys) << '\n';
+        else
+            std::cout << memoryStatus.ullAvailPhys << " B\n";
+        std::cout << "The current size of the committed memory limit: ";
+        if(bConvertToMaximum)
+            std::cout << ConvertBytesToMaximum(memoryStatus.ullTotalPageFile) << '\n';
+        else
+            std::cout << memoryStatus.ullTotalPageFile << " B\n";
+        std::cout << "The maximum amount of memory the current process can commit: ";
+        if(bConvertToMaximum)
+            std::cout << ConvertBytesToMaximum(memoryStatus.ullAvailPageFile) << '\n';
+        else
+            std::cout << memoryStatus.ullAvailPageFile << " B\n";
+        std::cout << "The size of the user-mode portion of the virtual address space of the calling process: ";
+        if(bConvertToMaximum)
+            std::cout << ConvertBytesToMaximum(memoryStatus.ullTotalVirtual) << '\n';
+        else
+            std::cout << memoryStatus.ullTotalVirtual << " B\n";
+        std::cout << "The amount of unreserved and uncommitted memory currently in the user-mode portion of ";
+        std::cout << "\n\tthe virtual address space of the calling process: ";
+        if(bConvertToMaximum)
+            std::cout << ConvertBytesToMaximum(memoryStatus.ullAvailVirtual) << '\n';
+        else
+            std::cout << memoryStatus.ullAvailVirtual << " B\n";
+    }
     else
-        std::cout << memoryStatus.dwTotalPhys << " B\n";
-    std::cout << "The amount of physical memory currently available: ";
-    if(bConvertToMaximum)
-        std::cout << ConvertBytesToMaximum(memoryStatus.dwAvailPhys) << '\n';
-    else
-        std::cout << memoryStatus.dwAvailPhys << " B\n";
-    std::cout << "The current size of the committed memory limit: ";
-    if(bConvertToMaximum)
-        std::cout << ConvertBytesToMaximum(memoryStatus.dwTotalPageFile) << '\n';
-    else
-        std::cout << memoryStatus.dwTotalPageFile << " B\n";
-    std::cout << "The maximum amount of memory the current process can commit: ";
-    if(bConvertToMaximum)
-        std::cout << ConvertBytesToMaximum(memoryStatus.dwAvailPageFile) << '\n';
-    else
-        std::cout << memoryStatus.dwAvailPageFile << " B\n";
-    std::cout << "The size of the user-mode portion of the virtual address space of the calling process: ";
-    if(bConvertToMaximum)
-        std::cout << ConvertBytesToMaximum(memoryStatus.dwTotalVirtual) << '\n';
-    else
-        std::cout << memoryStatus.dwTotalVirtual << " B\n";
-    std::cout << "The amount of unreserved and uncommitted memory currently in the user-mode portion of ";
-    std::cout << "\n\tthe virtual address space of the calling process: ";
-    if(bConvertToMaximum)
-        std::cout << ConvertBytesToMaximum(memoryStatus.dwAvailVirtual) << '\n';
-    else
-        std::cout << memoryStatus.dwAvailVirtual << " B\n";
+    {
+        std::cout << "Failed to get memory status. Error code is " << GetLastError() << '\n';
+    }
+    
 }
 
 /**
