@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <windows.h>
 #include <omp.h>
 
@@ -12,7 +13,7 @@ int main()
     int i;
     for(iThreadsNum = 1, i = 1; iThreadsNum <= 16; iThreadsNum = 1 << (i++))
     {
-        double dPi = 0.0;        //Прямой цикл, без потоков
+        double dPi = 0.0;
         omp_set_num_threads(iThreadsNum);
         DWORD start = GetTickCount();
         #pragma omp parallel for schedule(dynamic, BLOCKSIZE) reduction(+:dPi)
@@ -22,9 +23,10 @@ int main()
             dPi += 4.0/(1.0 + ((i+0.5)/N)*((i+0.5)/N));
         }
         std::cout << "The calculating using " << iThreadsNum << " threads took " << ((double)(GetTickCount()-start)/1000) << " seconds\n";
-        std::cout << dPi/N << '\n';
+        //std::cout << dPi/N << '\n';
+        printf("%.50f\n", dPi/N);
         if(iThreadsNum != 16)
-            Sleep(5000);
+            Sleep(1000);
     }
     return 0;
 }
