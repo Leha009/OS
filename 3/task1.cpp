@@ -1,25 +1,27 @@
 #include <iostream>
 #include <stdio.h>
 #include <windows.h>
+#include <mutex>
 
-#define BLOCKSIZE 9308230
-#define TIMES 100
+#define BLOCKSIZE 9308230   // Размер блока
+#define TIMES 20           // Число замеров
 
 const int N = 100000000;
 
 DWORD WINAPI CalculatePi(LPVOID lpParameter);
 
 double dPi;
+std::mutex mIncreaseN;
 
 int main()
 {
     double dAvgTime[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    int iCurrentN;
     for(int times = 0; times < TIMES; ++times)
     {
         for(int iThreadNum = 1, k = 1; iThreadNum <= 16; iThreadNum = 1 << (k++))
         {
-            int iCount = iThreadNum;
-            int iCurrentN = 0;
+            iCurrentN = 0;
             dPi = 0.0;
             HANDLE* hThread = new HANDLE[iThreadNum];
             if(hThread != NULL)
@@ -43,21 +45,24 @@ int main()
 
                 double dTime = (double)(GetTickCount()-start)/1000;
                 dAvgTime[k-1] += dTime;
-                /*printf("The calculating using %d threads took %.5f seconds\n", iThreadNum, dTime);
+                if(TIMES == 1)
+                {
+                    printf("The calculating using %d threads took %.5f seconds\n", iThreadNum, dTime);
 
-                printf("Pi = %.10f\n", dPi);*/
+                    printf("Pi = %.10f\n", dPi);
+                }
 
                 for(int i = 0; i < iThreadNum; ++i)
                     CloseHandle(hThread[i]);
                 delete hThread;
             }
-
-            //Sleep(1000);
         }
     }
 
-    printf("Number of threads - taken time\n1 - %.10f\n2 - %.10f\n4 - %.10f\n8 - %.10f\n16 - %.10f", dAvgTime[0]/TIMES, dAvgTime[1]/TIMES, dAvgTime[2]/TIMES, dAvgTime[3]/TIMES, dAvgTime[4]/TIMES);
-
+    if(TIMES > 1)
+    {
+        printf("Number of threads - taken time\n1 - %.10f\n2 - %.10f\n4 - %.10f\n8 - %.10f\n16 - %.10f", dAvgTime[0]/TIMES, dAvgTime[1]/TIMES, dAvgTime[2]/TIMES, dAvgTime[3]/TIMES, dAvgTime[4]/TIMES);
+    }
     //====================== Прямой цикл, без потоков
     /*dPi = 0.0;
     double x;
@@ -81,8 +86,10 @@ DWORD WINAPI CalculatePi(LPVOID lpParameter)
     int     iStop = 0;
     while(iStop < N)
     {
+        mIncreaseN.lock();
         *(iCurrentN) += BLOCKSIZE;
         iStop = *(iCurrentN);
+        mIncreaseN.unlock();
         for(int i = iStop-BLOCKSIZE; i < N && i < iStop; ++i)
         {
             /*x = (0.5+i)*dN;
