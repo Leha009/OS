@@ -1,8 +1,7 @@
 #include <iostream>
-#include <stdio.h>
 #include <windows.h>
 
-#define BLOCKSIZE 9308230
+#define BLOCKSIZE 930823
 
 const int N = 100000000;
 //const int N = 10000000;
@@ -55,7 +54,7 @@ int main()
         for(int i = 0; i < iThreadNum; ++i)
             num += t[i].dPi;
 
-        printf("Pi = %.50f\n", num/N);
+        std::cout << "Pi = " << num/N << '\n';
 
         delete hThread;
         delete t;
@@ -79,7 +78,6 @@ int main()
 DWORD WINAPI CalculatePi(LPVOID lpParameter)
 {
     test* t = (test*)lpParameter;
-    double dN = 1.0/N;
     double x;
     //while(*(t->iLastBlock) < N)
     while(t->iBlock < N)
@@ -92,7 +90,7 @@ DWORD WINAPI CalculatePi(LPVOID lpParameter)
         {
             /*if(i == t->iBlock+BLOCKSIZE-1 || i == N-1)
                 std::cout << i << " | N = " << N << " | iBlock = " << t->iBlock << '\n';*/
-            x = (0.5+i)*dN;
+            x = (i+0.5)/N;
             t->dPi += 4.0/(1.0 + x*x);
         }
         *(t->iCount) = *(t->iCount)+1;
