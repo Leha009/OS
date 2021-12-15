@@ -3,8 +3,8 @@
 #include <windows.h>
 #include <mutex>
 
-#define BLOCKSIZE 9308230   // Размер блока
-#define TIMES 20           // Число замеров
+#define BLOCKSIZE 930823   // Размер блока
+#define TIMES 10           // Число замеров
 
 const int N = 100000000;
 
@@ -15,11 +15,13 @@ std::mutex mIncreaseN;
 
 int main()
 {
-    double dAvgTime[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double dAvgTime[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     int iCurrentN;
-    for(int times = 0; times < TIMES; ++times)
+    int k = 1;
+    for(int iThreadNum = 1; iThreadNum <= 64; iThreadNum = 1 << (k++))
     {
-        for(int iThreadNum = 1, k = 1; iThreadNum <= 16; iThreadNum = 1 << (k++))
+        std::cout << iThreadNum << " threads running...\n";
+        for(int times = 0; times < TIMES; ++times)
         {
             iCurrentN = 0;
             dPi = 0.0;
@@ -50,6 +52,7 @@ int main()
                     printf("The calculating using %d threads took %.5f seconds\n", iThreadNum, dTime);
 
                     printf("Pi = %.10f\n", dPi);
+                    //printf("Number = %d\n", iTest);
                 }
 
                 for(int i = 0; i < iThreadNum; ++i)
@@ -57,11 +60,14 @@ int main()
                 delete hThread;
             }
         }
+        printf("%.10f\n", dPi);
     }
 
     if(TIMES > 1)
     {
-        printf("Number of threads - taken time\n1 - %.10f\n2 - %.10f\n4 - %.10f\n8 - %.10f\n16 - %.10f", dAvgTime[0]/TIMES, dAvgTime[1]/TIMES, dAvgTime[2]/TIMES, dAvgTime[3]/TIMES, dAvgTime[4]/TIMES);
+        for(int i = 0; i < k-1; ++i)
+            printf("%d - %.10f seconds\n", (1 << i), dAvgTime[i]/TIMES);
+        //printf("Number of threads - taken time\n1 - %.10f\n2 - %.10f\n4 - %.10f\n8 - %.10f\n16 - %.10f", dAvgTime[0]/TIMES, dAvgTime[1]/TIMES, dAvgTime[2]/TIMES, dAvgTime[3]/TIMES, dAvgTime[4]/TIMES);
     }
     //====================== Прямой цикл, без потоков
     /*dPi = 0.0;
