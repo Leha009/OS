@@ -1,237 +1,157 @@
 #include <iostream>
 #include <windows.h>
-#include <mutex>
-#include <ctime>
 
-#define _LogEnable 1
-#ifdef _LogEnable
-#define _LogToFile 1
-#endif
+#define GLOBALWRITESEMAPHORE "globalWriteSemaphore"
+#define GLOBALREADSEMAPHORE "globalReadSemaphore"
+#define WRITEMUTEXNAME(num) ("writemutex" + std::to_string(num))
+#define READMUTEXNAME(num) ("readmutex" + std::to_string(num))
+#define PAGE_NUMBER 20
+#define PAGE_SIZE 4096
+#define FILE_MAP_NAME "lab4bufFile"
 
-#define MAPPED_FILE_NAME "bufferFile"
-#define BUF_PAGES 16UL
-#define MAX_SEM_COUNT 1
-#define SLEEP_TIME 500 + rand() % 1001
-#define THREAD_NUM 5
+bool InitMutexesAndSemaphore();
+void CloseMutexesAndSemaphore();
 
-bool LogToFile(HANDLE hFile, LPCSTR lpStringToWrite, DWORD dwStringLength);
-bool WriteToMemory(DWORD iThreadNum);
-DWORD WINAPI WriteViaThread(LPVOID lpThreadNum);
-bool ReadFromMemory(DWORD iThreadNum);
-DWORD WINAPI ReadViaThread(LPVOID lpThreadNum);
+HANDLE FileMap();
 
-HANDLE  g_hWriteSemaphore[BUF_PAGES],
-        g_hReadSemaphore[BUF_PAGES],
-        g_hLogFile;
+HANDLE  g_hWriteMutex[PAGE_NUMBER],
+        g_hReadMutex[PAGE_NUMBER],
+        g_hWriteGlobalSemaphore;
 
 int main()
 {
-    srand(time(NULL));
-    HANDLE  hLogFile,
-            hMappedFile,
-            hWritersThreads[THREAD_NUM],
-            hReadersThreads[THREAD_NUM];
-    DWORD   dwPageSize;
-    SYSTEM_INFO sSysInfo;
-    GetSystemInfo(&sSysInfo);
-    dwPageSize = sSysInfo.dwPageSize;
-    #ifdef _LogToFile
-    g_hLogFile = CreateFileA("actions.log", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if(g_hLogFile == INVALID_HANDLE_VALUE)
+    if(InitMutexesAndSemaphore())
     {
-        std::cout << "Failed to create log file! Error code is " << GetLastError() << '\n';
-        system("pause");
-        return 1;
-    }
-    #endif
-
-    hMappedFile = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0UL, BUF_PAGES*dwPageSize, MAPPED_FILE_NAME);
-    if(hMappedFile != INVALID_HANDLE_VALUE)
-    {
-        LPVOID lpFileView = MapViewOfFile(hMappedFile, FILE_MAP_WRITE, 0UL, 0UL, BUF_PAGES*dwPageSize);
-        if(lpFileView != NULL)
+        std::cout << "All good :)\n";
+        HANDLE hFileMap = CreateFileMappingA(NULL, NULL, PAGE_READWRITE, 0UL, PAGE_NUMBER*PAGE_SIZE, FILE_MAP_NAME);
+        if(hFileMap != NULL)
         {
-            if(VirtualLock(lpFileView, BUF_PAGES*dwPageSize))
+            char* lpCharFileView = (char*)MapViewOfFile(hFileMap, FILE_MAP_WRITE, 0UL, 0UL, 0UL);
+            if(lpCharFileView != NULL)
             {
-                g_hWriteSemaphore = CreateSemaphoreA(NULL, MAX_SEM_COUNT, MAX_SEM_COUNT, "writeSem");
-                g_hReadSemaphore = CreateSemaphoreA(NULL, 0, MAX_SEM_COUNT, "readSem");
-                if(g_hWriteSemaphore != INVALID_HANDLE_VALUE && g_hReadSemaphore != INVALID_HANDLE_VALUE)
+                if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE))
                 {
-                    for(int i = 0; i < THREAD_NUM; ++i)
+                    HANDLE hReadMutexes[PAGE_NUMBER];
+                    bool bContinue = true;
+                    DWORD dwWait = WaitForSingleObject(g_hWriteGlobalSemaphore, 10000UL);
+                    if(dwWait == WAIT_OBJECT_0)
                     {
-                        hWritersThreads[i] = CreateThread(NULL, 0, WriteViaThread, NULL, 0, NULL);
-                        hReadersThreads[i] = CreateThread(NULL, 0, ReadViaThread, NULL, 0, NULL);
+                        ReleaseSemaphore(g_hWriteGlobalSemaphore, 1, NULL);
+                        HANDLE hReadGlobalSemaphore = OpenSemaphoreA(SEMAPHORE_MODIFY_STATE, true, GLOBALREADSEMAPHORE);
+                        if(hReadGlobalSemaphore != NULL)
+                        {
+                            dwWait = WaitForSingleObject(hReadGlobalSemaphore, 2000UL);
+                            if(dwWait == WAIT_OBJECT_0)
+                            {
+                                for(int i = 0; i < PAGE_NUMBER; ++i)
+                                {
+                                    hReadMutexes[i] = OpenMutexA(MUTEX_MODIFY_STATE, false, READMUTEXNAME(i).c_str());
+                                    if(hReadMutexes[i] == NULL)
+                                    {
+                                        std::cout << "Failed to get read mutexes! Error code is " << GetLastError() << "\n";
+                                        for(int j = 0; j < i; ++j)
+                                            CloseHandle(hReadMutexes[j]);
+                                        bContinue = false;
+                                    }
+                                }
+                                if(bContinue)
+                                {
+                                    ReleaseSemaphore(hReadGlobalSemaphore, 1, NULL);
+                                    dwWait = WaitForSingleObject(g_hWriteGlobalSemaphore, 2000UL);
+                                    if(dwWait == WAIT_OBJECT_0)
+                                    {
+                                        //Let's go!
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                std::cout << "Too much time wasted waiting for global read semaphore!\n";
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "Failed to get global read semaphore! Error code is " << GetLastError() << "\n";
+                        }
                     }
-                    WaitForMultipleObjects(THREAD_NUM, hWritersThreads, true, INFINITE);
-                    WaitForMultipleObjects(THREAD_NUM, hReadersThreads, true, INFINITE);
-
-                    for(int i = 0; i < THREAD_NUM; ++i)
+                    else
                     {
-                        CloseHandle(hWritersThreads[i]);
-                        CloseHandle(hReadersThreads[i]);
+                        std::cout << "Too much time wasted waiting for read mutexes!\n";
                     }
                 }
                 else
                 {
-                    std::cout << "Failed to create semaphore! Error code is " << GetLastError() << '\n';
+                    std::cout << "Failed to lock virtual space! Error code is " << GetLastError() << '\n';
                 }
-                if(g_hWriteSemaphore != INVALID_HANDLE_VALUE)
-                    CloseHandle(g_hWriteSemaphore);
-                if(g_hReadSemaphore != INVALID_HANDLE_VALUE)
-                    CloseHandle(g_hReadSemaphore);
-                
-                VirtualUnlock(lpFileView, BUF_PAGES*dwPageSize);
+                UnmapViewOfFile(lpCharFileView);
             }
-            UnmapViewOfFile(lpFileView);
+            else
+            {
+                std::cout << "Failed to map view of file! Error code is " << GetLastError() << '\n';
+            }
+            CloseHandle(hFileMap);
         }
         else
         {
-            std::cout << "Failed to create view of the mapped file! Error code is " << GetLastError() << '\n';
+            std::cout << "Failed to create file mapping! Error code is " << GetLastError() << '\n';
         }
-        CloseHandle(hMappedFile);
+        CloseMutexesAndSemaphore();
     }
     else
     {
-        std::cout << "Failed to create mapped file! Error code is " << GetLastError() << '\n';
+        std::cout << "Due to failure during mutex creation reader is going down!\n";
+        system("pause");
     }
-
-    #ifdef _LogToFile
-    CloseHandle(g_hLogFile);
-    #endif
-
     return 0;
 }
 
-bool LogToFile(HANDLE hFile, LPCSTR lpStringToWrite, DWORD dwStringLength)
+bool InitMutexesAndSemaphore()
 {
-    DWORD dwWrittenBytes;
-    bool bSuccess = WriteFile(hFile, lpStringToWrite, dwStringLength, &dwWrittenBytes, NULL);
-    if(!bSuccess)
+    for(int i = 0; i < PAGE_NUMBER; ++i)
     {
-        std::cout << "Failed to log to the file! Error code is " << GetLastError() << '\n';
-        return false;
+        g_hWriteMutex[i] = CreateMutexA(NULL, true, WRITEMUTEXNAME(i).c_str());
+        if(g_hWriteMutex[i] == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "Failed to create #" << i << " write mutex. Error code is " << GetLastError() << '\n';
+            for(int j = 0; j < i; ++j)
+            {
+                CloseHandle(g_hWriteMutex[j]);
+            }
+            return false;
+        }
     }
-    if(dwStringLength != dwWrittenBytes)
+    g_hWriteGlobalSemaphore = CreateSemaphoreA(NULL, 0, 1, GLOBALWRITESEMAPHORE);
+    if(g_hWriteGlobalSemaphore == NULL)
     {
-        std::cout << "Number of the written bytes isn't equal to the string length!\n";
+        std::cout << "Failed to create global write semaphore. Error code is " << GetLastError() << '\n';
+        CloseMutexesAndSemaphore();
+        return false;
     }
     return true;
 }
 
-bool WriteToMemory(DWORD iThreadNum)
+void CloseMutexesAndSemaphore()
 {
-    #ifdef _LogToFile
-    std::string sLogAction;
-    sLogAction = std::to_string(GetTickCount()) + " | Writing Thread #" + std::to_string(iThreadNum) + ": waiting...\n";
-    LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-    #elif _LogEnable
-    std::cout << "Writing Thread #" << iThreadNum << ": waiting...\n";
-    #endif
-
-    DWORD dwWaitResult;
-    while(true)
+    for(int i = 0; i < PAGE_NUMBER; ++i)
     {
-        dwWaitResult = WaitForSingleObject(g_hWriteSemaphore, 0UL);
-        if(dwWaitResult == WAIT_OBJECT_0)
-        {
-            #ifdef _LogToFile
-            sLogAction = std::to_string(GetTickCount()) + " | Writing Thread #" + std::to_string(iThreadNum) + ": writing something...\n";
-            LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-            #elif _LogEnable
-            std::cout << "Writing Thread #" << iThreadNum << ": writing something...\n";
-            #endif
-
-            Sleep(SLEEP_TIME);
-
-            #ifdef _LogToFile
-            sLogAction = std::to_string(GetTickCount()) + " | Writing Thread #" + std::to_string(iThreadNum) + ": releasing semaphore...\n";
-            LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-            #elif _LogEnable
-            std::cout << "Writing Thread #" << iThreadNum << ": releasing semaphore...\n";
-            #endif
-
-            if(!ReleaseSemaphore(g_hReadSemaphore, 1, NULL))
-            {
-                std::cout << "Failed to release the semaphore! Error code is " << GetLastError() << '\n';
-                return false;
-            }
-
-            #ifdef _LogToFile
-            sLogAction = std::to_string(GetTickCount()) + " | Writing Thread #" + std::to_string(iThreadNum) + ": successfully released semaphore...\n";
-            LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-            #elif _LogEnable
-            std::cout << "Writing Thread #" << iThreadNum << ": released semaphore...\n";
-            #endif
-
-            return true;
-        }
+        CloseHandle(g_hWriteMutex[i]);
     }
-    return false;
-}
-
-DWORD WINAPI WriteViaThread(LPVOID lpThreadNum)
-{
-    DWORD iThreadNum = GetCurrentThreadId();
-    for(int i = 0; i < 2; ++i)
-        WriteToMemory(iThreadNum);
-    return 0UL;
-}
-
-bool ReadFromMemory(DWORD iThreadNum)
-{
-    #ifdef _LogToFile
-    std::string sLogAction;
-    sLogAction = std::to_string(GetTickCount()) + " | Reading Thread #" + std::to_string(iThreadNum) + ": waiting...\n";
-    LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-    #elif _LogEnable
-    std::cout << "Reading Thread #" << iThreadNum << ": waiting...\n";
-    #endif
-
-    DWORD dwWaitResult;
-    while(true)
+    if(g_hWriteGlobalSemaphore != NULL)
     {
-        dwWaitResult = WaitForSingleObject(g_hReadSemaphore, 0UL);
-        if(dwWaitResult == WAIT_OBJECT_0)
-        {
-            #ifdef _LogToFile
-            sLogAction = std::to_string(GetTickCount()) + " | Reading Thread #" + std::to_string(iThreadNum) + ": reading something...\n";
-            LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-            #elif _LogEnable
-            std::cout << "Reading Thread #" << iThreadNum << ": reading something...\n";
-            #endif
-
-            Sleep(SLEEP_TIME);
-
-            #ifdef _LogToFile
-            sLogAction = std::to_string(GetTickCount()) + " | Reading Thread #" + std::to_string(iThreadNum) + ": releasing semaphore...\n";
-            LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-            #elif _LogEnable
-            std::cout << "Reading Thread #" << iThreadNum << ": releasing semaphore...\n";
-            #endif
-
-            if(!ReleaseSemaphore(g_hWriteSemaphore, 1, NULL))
-            {
-                std::cout << "Failed to release the semaphore! Error code is " << GetLastError() << '\n';
-                return false;
-            }
-
-            #ifdef _LogToFile
-            sLogAction = std::to_string(GetTickCount()) + " | Reading Thread #" + std::to_string(iThreadNum) + ": successfully released semaphore...\n";
-            LogToFile(g_hLogFile, sLogAction.c_str(), sLogAction.length());
-            #elif _LogEnable
-            std::cout << "Reading Thread #" << iThreadNum << ": released semaphore...\n";
-            #endif
-
-            return true;
-        }
+        CloseHandle(g_hWriteGlobalSemaphore);
     }
-    return false;
 }
 
-DWORD WINAPI ReadViaThread(LPVOID lpThreadNum)
+bool WaitForStart()
 {
-    DWORD iThreadNum = GetCurrentThreadId();
-    for(int i = 0; i < 2; ++i)
-        ReadFromMemory(iThreadNum);
-    return 0UL;
+    DWORD dwWait = WaitForSingleObject(g_hWriteGlobalSemaphore, 10000UL);
+    if(dwWait == WAIT_OBJECT_0)
+    {
+        return true;
+    }
+    else
+    {
+        std::cout << "Too much time wasted waiting for read mutexes!\n";
+        return false;
+    }
 }

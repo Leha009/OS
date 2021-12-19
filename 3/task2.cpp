@@ -4,7 +4,7 @@
 #include <omp.h>
 
 #define BLOCKSIZE 9308230
-#define TIMES 100
+#define TIMES 10
 
 const int N = 100000000;
 

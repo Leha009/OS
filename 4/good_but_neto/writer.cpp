@@ -10,40 +10,47 @@
 #endif
 
 #define MAPPED_FILE_NAME "bufferFile"
-#define BUF_PAGES 16UL
-#define PAGE_SIZE 4096
-#define SLEEP_TIME 500 + rand() % 1001
-#define THREAD_NUM 2
-#define READ_WRITE_REPEATS 10
+#define BUF_PAGES 16UL                      // 30823 => 3 + 0 + 8 + 2 + 3 = 16
+#define PAGE_SIZE 4096                      // Используется, если реально что-то пишется в память
+#define SLEEP_TIME 500 + rand() % 1001      // Ждем от 500 до 1500 мс
+#define THREAD_NUM 16                       // Сколько писателей/читателей
+#define READ_WRITE_REPEATS 10               // Сколько раз прогнать написание/чтение
 
+// Запись в файлик какой-то строки
 bool LogToFile(HANDLE hFile, LPCSTR lpStringToWrite, DWORD dwStringLength);
+
+// Функции ниже пишут что-то
 bool WriteToMemory(DWORD iThreadNum, LPVOID lpAddress);
 DWORD WINAPI WriteViaThread(LPVOID lpAddress);
+
+// Функции ниже читают что-то
 bool ReadFromMemory(DWORD iThreadNum, LPVOID lpAddress);
 DWORD WINAPI ReadViaThread(LPVOID lpAddress);
 
-HANDLE  g_hWriteSemaphore[BUF_PAGES],
-        g_hReadSemaphore[BUF_PAGES],
-        g_hLogFile;
+// Каждые 100 мс получает кол-во занятых страниц (сколько читают, сколько пишут) для матлаба
+DWORD WINAPI WriteBusinessOfPages(LPVOID lp);
 
-char g_cSymbolToPage[BUF_PAGES];
+HANDLE  g_hWriteSemaphore[BUF_PAGES],       // Семафоры писателей
+        g_hReadSemaphore[BUF_PAGES],        // Семафоры читателей
+        g_hLogFile;                         // Файл для лога состояний
 
-int iBufPages,
-    iThreadsNum,
-    iReadWriteRepeats;
+char g_cSymbolToPage[BUF_PAGES];            // Символы, чтобы реально что-то писать в страницы
+
+int     g_iWriters,                         // Счетчик писателей
+        g_iReaders;                         // Счетчик читателей
 
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
-    HANDLE  hLogFile,
-            hMappedFile,
-            hWritersThreads[THREAD_NUM],
-            hReadersThreads[THREAD_NUM];
-    DWORD   dwPageSize;
-    SYSTEM_INFO sSysInfo;
+    HANDLE  hMappedFile,                    // Проецируемый файл (общая память)
+            hWritersThreads[THREAD_NUM],    // Потоки писателей
+            hReadersThreads[THREAD_NUM];    // Потоки читателей
+    DWORD   dwPageSize;                     // Реальный размер страницы в системе
+    SYSTEM_INFO sSysInfo;                   // Информация о системе
     GetSystemInfo(&sSysInfo);
     dwPageSize = sSysInfo.dwPageSize;
     #ifdef _LogToFile
+    // Открываем файл для лога состояния
     g_hLogFile = CreateFileA("actions.log", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if(g_hLogFile == INVALID_HANDLE_VALUE)
     {
@@ -53,6 +60,8 @@ int main(int argc, char* argv[])
     }
     #endif
 
+    g_iWriters = g_iReaders = 0;
+
     hMappedFile = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0UL, BUF_PAGES*dwPageSize, MAPPED_FILE_NAME);
     if(hMappedFile != INVALID_HANDLE_VALUE)
     {
@@ -61,11 +70,12 @@ int main(int argc, char* argv[])
         {
             if(VirtualLock(lpFileView, BUF_PAGES*dwPageSize))
             {
-                bool bStartProcess = true;
-                for(int i = 0; i < BUF_PAGES; ++i)
+                bool bSuccess = true;
+                // Ниже создаем семафоры и смотрим, чтобы все было хорошо
+                for(int i = 0; bSuccess && i < BUF_PAGES; ++i)
                 {
                     g_hWriteSemaphore[i] = CreateSemaphoreA(NULL, 1, 1, NULL);
-                    if(g_hWriteSemaphore[i] == INVALID_HANDLE_VALUE)
+                    if(g_hWriteSemaphore[i] == INVALID_HANDLE_VALUE)    // Если что-то пошло не так, то убираем за собой
                     {
                         for(int j = 0; j < i; ++j)
                         {
@@ -73,46 +83,78 @@ int main(int argc, char* argv[])
                             if(j < i-1)
                                 CloseHandle(g_hReadSemaphore[i]);
                         }
-                        bStartProcess = false;
+                        bSuccess = false;
                         std::cout << "Failed to create write semaphore! Error code is " << GetLastError() << '\n';
                     }
                     else
                     {
                         g_hReadSemaphore[i] = CreateSemaphoreA(NULL, 0, 1, NULL);
-                        if(g_hReadSemaphore[i] == INVALID_HANDLE_VALUE)
+                        if(g_hReadSemaphore[i] == INVALID_HANDLE_VALUE) // Если что-то пошло не так, то убираем за собой
                         {
                             for(int j = 0; j < i; ++j)
                             {
                                 CloseHandle(g_hWriteSemaphore[i]);
                                 CloseHandle(g_hReadSemaphore[i]);
                             }
-                            bStartProcess = false;
+                            bSuccess = false;
                             std::cout << "Failed to create read semaphore! Error code is " << GetLastError() << '\n';
                         }
                     }
                 }
-                if(bStartProcess)
+                if(bSuccess)
                 {
                     // Если использовать реальную запись в файл, чтобы посмотреть работоспособность
                     for(int i = 0; i < BUF_PAGES; ++i)
                     {
                         g_cSymbolToPage[i] = (char)(65+i);
                     }
-                    for(int i = 0; i < THREAD_NUM; ++i)
+                    for(int i = 0; bSuccess && i < THREAD_NUM; ++i)
                     {
                         hWritersThreads[i] = CreateThread(NULL, 0, WriteViaThread, lpFileView, 0, NULL);
-                        hReadersThreads[i] = CreateThread(NULL, 0, ReadViaThread, lpFileView, 0, NULL);
+                        if(hWritersThreads[i] == INVALID_HANDLE_VALUE)  // Если что-то пошло не так, то убираем за собой
+                        {
+                            bSuccess = false;
+                            for(int j = 0; j < i; ++j)
+                            {
+                                CloseHandle(hWritersThreads[i]);
+                                if(j < i-1)
+                                    CloseHandle(hReadersThreads[i]);
+                            }
+                            std::cout << "Failed to create write thread! Error code is " << GetLastError() << '\n';
+                        }
+                        else
+                        {
+                            hReadersThreads[i] = CreateThread(NULL, 0, ReadViaThread, lpFileView, 0, NULL);
+                            if(hReadersThreads[i] == INVALID_HANDLE_VALUE)  // Если что-то пошло не так, то убираем за собой
+                            {
+                                for(int j = 0; j < i; ++j)
+                                {
+                                    CloseHandle(hWritersThreads[i]);
+                                    CloseHandle(hReadersThreads[i]);
+                                }
+                                bSuccess = false;
+                                std::cout << "Failed to create read thread! Error code is " << GetLastError() << '\n';
+                            }
+                        }
                     }
-                    WaitForMultipleObjects(THREAD_NUM, hWritersThreads, true, INFINITE);
-                    WaitForMultipleObjects(THREAD_NUM, hReadersThreads, true, INFINITE);
-
-                    for(int i = 0; i < THREAD_NUM; ++i)
+                    if(bSuccess)    // Все хорошо, ждем конца работы писателей-читателей, параллельно логируя состояния страниц (потом и потоков, они же писатели/читатели)
                     {
-                        CloseHandle(hWritersThreads[i]);
-                        CloseHandle(hReadersThreads[i]);
+                        HANDLE hBusinessLog = CreateThread(NULL, 0, WriteBusinessOfPages, NULL, 0, NULL);
+                        WaitForMultipleObjects(THREAD_NUM, hWritersThreads, true, INFINITE);
+                        WaitForMultipleObjects(THREAD_NUM, hReadersThreads, true, INFINITE);
+                        if(hBusinessLog != INVALID_HANDLE_VALUE)
+                        {
+                            WaitForSingleObject(hBusinessLog, INFINITE);
+                            CloseHandle(hBusinessLog);
+                        }
+                        for(int i = 0; i < THREAD_NUM; ++i) // Не забываем закрыть дескрипторы, которые наоткрывали
+                        {
+                            CloseHandle(hWritersThreads[i]);
+                            CloseHandle(hReadersThreads[i]);
+                        }
                     }
 
-                    for(int i = 0; i < BUF_PAGES; ++i)
+                    for(int i = 0; i < BUF_PAGES; ++i)  // Не забываем закрыть дескрипторы, которые наоткрывали
                     {
                         CloseHandle(g_hWriteSemaphore[i]);
                         CloseHandle(g_hReadSemaphore[i]);
@@ -140,6 +182,9 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+/*
+ * Запись в файлик какой-то строки
+ */
 bool LogToFile(HANDLE hFile, LPCSTR lpStringToWrite, DWORD dwStringLength)
 {
     DWORD dwWrittenBytes;
@@ -156,6 +201,10 @@ bool LogToFile(HANDLE hFile, LPCSTR lpStringToWrite, DWORD dwStringLength)
     return true;
 }
 
+
+/*
+ * Запись чего-нибудь в страницу (fake or real)
+ */
 bool WriteToMemory(DWORD iThreadNum, LPVOID lpAddress)
 {
     #ifdef _LogToFile
@@ -174,6 +223,7 @@ bool WriteToMemory(DWORD iThreadNum, LPVOID lpAddress)
             dwWaitResult = WaitForSingleObject(g_hWriteSemaphore[i], 1UL);
             if(dwWaitResult == WAIT_OBJECT_0)
             {
+                ++g_iWriters;
                 #ifdef _LogToFile
                 //Fake write
                 sLogAction = std::to_string(GetTickCount()) + " | Writing Thread #" + std::to_string(iThreadNum) + ": writing something to page #" + std::to_string(i) + "...\n";
@@ -196,6 +246,7 @@ bool WriteToMemory(DWORD iThreadNum, LPVOID lpAddress)
                 std::cout << "Writing Thread #" << iThreadNum << ": releasing semaphore...\n";
                 #endif
 
+                --g_iWriters;
                 if(!ReleaseSemaphore(g_hReadSemaphore[i], 1, NULL))
                 {
                     std::cout << "Failed to release the semaphore! Error code is " << GetLastError() << '\n';
@@ -216,6 +267,9 @@ bool WriteToMemory(DWORD iThreadNum, LPVOID lpAddress)
     return false;
 }
 
+/*
+ * Поток-писатель
+ */
 DWORD WINAPI WriteViaThread(LPVOID lpAddress)
 {
     DWORD iThreadNum = GetCurrentThreadId();
@@ -224,6 +278,9 @@ DWORD WINAPI WriteViaThread(LPVOID lpAddress)
     return 0UL;
 }
 
+/*
+ * Чтение собственной персоной
+ */
 bool ReadFromMemory(DWORD iThreadNum, LPVOID lpAddress)
 {
     #ifdef _LogToFile
@@ -242,6 +299,7 @@ bool ReadFromMemory(DWORD iThreadNum, LPVOID lpAddress)
             dwWaitResult = WaitForSingleObject(g_hReadSemaphore[i], 1UL);
             if(dwWaitResult == WAIT_OBJECT_0)
             {
+                ++g_iReaders;
                 #ifdef _LogToFile
                 //Fake read
                 sLogAction = std::to_string(GetTickCount()) + " | Reading Thread #" + std::to_string(iThreadNum) + ": reading something from page #" + std::to_string(i) + "...\n";
@@ -262,6 +320,7 @@ bool ReadFromMemory(DWORD iThreadNum, LPVOID lpAddress)
                 std::cout << "Reading Thread #" << iThreadNum << ": releasing semaphore...\n";
                 #endif
 
+                --g_iReaders;
                 if(!ReleaseSemaphore(g_hWriteSemaphore[i], 1, NULL))
                 {
                     std::cout << "Failed to release the semaphore! Error code is " << GetLastError() << '\n';
@@ -282,10 +341,45 @@ bool ReadFromMemory(DWORD iThreadNum, LPVOID lpAddress)
     return false;
 }
 
+/*
+ * Поток-читатель
+ */
 DWORD WINAPI ReadViaThread(LPVOID lpAddress)
 {
     DWORD iThreadNum = GetCurrentThreadId();
     for(int i = 0; i < READ_WRITE_REPEATS; ++i)
         ReadFromMemory(iThreadNum, lpAddress);
+    return 0UL;
+}
+
+/* 
+ * Каждые 100 мс получает кол-во занятых страниц (сколько читают, сколько пишут) для матлаба
+ */
+DWORD WINAPI WriteBusinessOfPages(LPVOID lp)
+{
+    HANDLE hFile = CreateFileA("businessOfPages.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(hFile == INVALID_HANDLE_VALUE)
+        return 0UL;
+    std::string sWriters = "writingPages = [";
+    std::string sReaders = "readingPages = [";
+    std::string sTime = "time = [";
+    int iTimes = 0;
+    while(true)
+    {
+        sWriters += std::to_string(g_iWriters) + " ";
+        sReaders += std::to_string(g_iReaders) + " ";
+        sTime += std::to_string(iTimes*100) + " ";
+        ++iTimes;
+        if(g_iWriters == 0 && g_iReaders == 0)
+            break;
+        Sleep(100);
+    }
+    sWriters += "];\n";
+    sReaders += "];\n";
+    sTime += "];\n";
+    WriteFile(hFile, sWriters.c_str(), sWriters.length(), NULL, NULL);
+    WriteFile(hFile, sReaders.c_str(), sReaders.length(), NULL, NULL);
+    WriteFile(hFile, sTime.c_str(), sTime.length(), NULL, NULL);
+    CloseHandle(hFile);
     return 0UL;
 }
