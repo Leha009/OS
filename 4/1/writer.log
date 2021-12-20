@@ -1,0 +1,6 @@
+712 writer: cannot get semaphores :c Error code is 2
+10332 writer: cannot get semaphores :c Error code is 2
+3348 writer: cannot get semaphores :c Error code is 2
+15792 writer: cannot get semaphores :c Error code is 2
+15772 reader: cannot get reader semaphore :c Error code is 2
+12032 reader: cannot get reader semaphore :c Error code is 2
