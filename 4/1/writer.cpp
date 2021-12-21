@@ -88,8 +88,7 @@ int main(int argc, char* argv[])
                 char* lpCharFileView = (char*)MapViewOfFile(hFileMap, FILE_MAP_WRITE, 0UL, 0UL, 0UL);
                 if(lpCharFileView != NULL)
                 {
-                    //if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE))
-                    if(true)
+                    if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE))
                     {
                         WaitForSingleObject(hLogMutex, INFINITE);
                         logStream << GetTickCount() << " | " << sID << " writer: ready to write!" << std::endl;
@@ -101,7 +100,7 @@ int main(int argc, char* argv[])
                             StartWrite_(hReadSemaphore, hWriteSemaphore, hLogMutex, logStream, sID, lpCharFileView);
                         }
 
-                        //VirtualUnlock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE);
+                        VirtualUnlock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE);
                     }
                     else
                     {
