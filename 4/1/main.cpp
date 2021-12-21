@@ -8,7 +8,7 @@
 #define MAP_FILE_NAME L"mapFileLab4"
 #define WRITER_PROCESS_NAME L"./writer.exe"
 #define READER_PROCESS_NAME L"./reader.exe"
-#define NEW_PROCESS_ID(num) (WCHAR*)(std::to_wstring(num).c_str())
+#define IN_PROCESS_INFO(id, repeats) (WCHAR*)(std::to_wstring(id) + " " + std::to_wstring(repeats)).c_str()
 #else
 #define GLOBALWRITESEMAPHORE(num) ("writeSemaphoreLab4" + std::to_string(num))
 #define GLOBALREADSEMAPHORE(num) ("readSemaphoreLab4" + std::to_string(num))
@@ -16,7 +16,7 @@
 #define MAP_FILE_NAME "mapFileLab4"
 #define WRITER_PROCESS_NAME "./writer.exe"
 #define READER_PROCESS_NAME "./reader.exe"
-#define NEW_PROCESS_ID(num) (CHAR*)(std::to_string(num).c_str())
+#define IN_PROCESS_INFO(id, repeats) (CHAR*)(std::to_string(id) + " " + std::to_string(repeats)).c_str()
 #endif
 
 #define LOG_READER_MUTEX_NAME "readerMutexLog"
@@ -26,18 +26,22 @@
 
 int main(int argc, char* argv[])
 {
-    int iProcessesNumber = 0;
-    if(argc < 2)
+    int iProcessesNumber = 0,
+        iRepeats = 0;
+    if(argc < 3)
     {
-        std::cout << "Run the program with number of processes to create!\n";
+        std::cout << "Run the program with number of processes to create and number of repeats for readers, writers!\n";
         return 0;
     }
     else
-        iProcessesNumber = std::atoi(argv[1]);
-
-    if(iProcessesNumber < 0)
     {
-        std::cout << "Processes number must be more than 0!\n";
+        iProcessesNumber = std::atoi(argv[1]);
+        iRepeats = std::atoi(argv[2]);
+    }
+
+    if(iProcessesNumber < 0 || iRepeats < 0)
+    {
+        std::cout << "Processes/repeats number must be more than 0!\n";
         return 0;
     }
     
@@ -132,7 +136,7 @@ int main(int argc, char* argv[])
                         ZeroMemory(&writerProcessInfo[i], sizeof(PROCESS_INFORMATION));
                         ZeroMemory(&readerProcessInfo[i], sizeof(PROCESS_INFORMATION));
                         // Создаем писателя
-                        if(!CreateProcess(WRITER_PROCESS_NAME, NEW_PROCESS_ID(i), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startInfo, &writerProcessInfo[i]))
+                        if(!CreateProcess(WRITER_PROCESS_NAME, IN_PROCESS_INFO(i, iRepeats), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startInfo, &writerProcessInfo[i]))
                         {
                             std::cout << "Failed to create writer process Error code is " << GetLastError() << "\n";
                             for(int j = 0; j < i; ++j)
@@ -150,7 +154,7 @@ int main(int argc, char* argv[])
                             break;
                         }
                         // Если все хорошо, то создаем читателя
-                        else if(!CreateProcess(READER_PROCESS_NAME, NEW_PROCESS_ID(i), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startInfo, &readerProcessInfo[i]))
+                        else if(!CreateProcess(READER_PROCESS_NAME, IN_PROCESS_INFO(i, iRepeats), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startInfo, &readerProcessInfo[i]))
                         {
                             std::cout << "Failed to create reader process Error code is " << GetLastError() << "\n";
                             for(int j = 0; j < i; ++j)
@@ -169,14 +173,15 @@ int main(int argc, char* argv[])
                         }
                         Sleep(100);     // Это можно и убрать, но так более вероятно по порядку запустятся процессы (айди последовательные будут)
                     }
-                    /*
+                    /*std::cout << "Waiting for processes to be finished\n";
+                    
                     // Ждем все процессы
                     for(int i = 0; i < iProcessesNumber; ++i)
                     {
-                        WaitForSingleObject(writerProcessInfo[i].hProcess, 3000);
-                        WaitForSingleObject(readerProcessInfo[i].hProcess, 3000);
+                        WaitForSingleObject(writerProcessInfo[i].hProcess, INFINITE);
+                        WaitForSingleObject(readerProcessInfo[i].hProcess, INFINITE);
                     }*/
-                    std::cout << "Everything's ok, press any key if you want to finish write/read processes\n";
+                    std::cout << "Everything's ok, press any to close the program\n";
                     system("pause");
                     delete [] hProcesses;
                     delete [] writerProcessInfo;

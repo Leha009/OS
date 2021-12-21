@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <mutex>
 
-#define BLOCKSIZE 930823   // Размер блока
+#define BLOCKSIZE 9308230   // Размер блока
 #define TIMES 10           // Число замеров
 
 const int N = 100000000;
