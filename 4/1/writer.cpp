@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
                     {
                         WaitForSingleObject(hLogMutex, INFINITE);
                         logStream << GetTickCount() << " | " << sID << " writer: ready to write!" << std::endl;
-                        logStream.flush();
+                        //logStream.flush();
                         ReleaseMutex(hLogMutex);
 
                         for(int i = 0; i < iRepeats; ++i)
@@ -158,23 +158,30 @@ void StartWrite_(
     LPCSTR ID,
     char* lpCharFileView)
 {
+    std::fstream logPage;
+    logPage.open("./pages.log", std::fstream::out | std::fstream::app);
+
     WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " writer: waiting for writer's semaphore" << std::endl;
     //logStream.flush();
     ReleaseMutex(hLogMutex);
 
-    DWORD dwPageToRead = WaitForMultipleObjects(PAGE_NUMBER, hWriteSemaphore, false, INFINITE);
+    DWORD dwPageToWriteIn = WaitForMultipleObjects(PAGE_NUMBER, hWriteSemaphore, false, INFINITE);
     WaitForSingleObject(hLogMutex, INFINITE);
-    logStream << GetTickCount() << " | " << ID << " writer: writing page number to page #" << dwPageToRead << std::endl;
+    logStream << GetTickCount() << " | " << ID << " writer: writing page number to page #" << dwPageToWriteIn << std::endl;
+    logPage << GetTickCount() << " | " << dwPageToWriteIn << ": writing in" << std::endl;
     //logStream.flush();
     ReleaseMutex(hLogMutex);
-    std::string sPage = std::to_string(dwPageToRead);
-    CopyMemory(lpCharFileView+(PAGE_SIZE*dwPageToRead), sPage.c_str(), sPage.length());
+    std::string sPage = std::to_string(dwPageToWriteIn);
+    CopyMemory(lpCharFileView+(PAGE_SIZE*dwPageToWriteIn), sPage.c_str(), sPage.length());
     Sleep(SLEEP_TIME);
 
     WaitForSingleObject(hLogMutex, INFINITE);
-    logStream << GetTickCount() << " | " << ID << " writer: release reader's semaphore #" << dwPageToRead << std::endl;
+    logStream << GetTickCount() << " | " << ID << " writer: release reader's semaphore #" << dwPageToWriteIn << std::endl;
+    logPage << GetTickCount() << " | " << dwPageToWriteIn << ": free" << std::endl;
     //logStream.flush();
     ReleaseMutex(hLogMutex);
-    ReleaseSemaphore(hReadSemaphore[dwPageToRead], 1, NULL);
+    ReleaseSemaphore(hReadSemaphore[dwPageToWriteIn], 1, NULL);
+
+    logPage.close();
 }

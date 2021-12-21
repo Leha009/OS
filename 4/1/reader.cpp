@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
                     {
                         WaitForSingleObject(hLogMutex, INFINITE);
                         logStream << GetTickCount() << " | " << sID << " reader: ready to read!" << std::endl;
-                        logStream.flush();
+                        //logStream.flush();
                         ReleaseMutex(hLogMutex);
 
                         for(int i = 0; i < iRepeats; ++i)
@@ -156,6 +156,9 @@ void StartRead_(
     LPCSTR ID,
     char* lpCharFileView)
 {
+    std::fstream logPage;
+    logPage.open("./pages.log", std::fstream::out | std::fstream::app);
+
     WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " reader: waiting for read semaphore..." << std::endl;
     //logStream.flush();
@@ -165,13 +168,17 @@ void StartRead_(
     WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " reader: reading page #" << dwPageToRead << std::endl;
     //logStream.flush();
+    logPage << GetTickCount() << " | " <<  dwPageToRead << ": is being read" << std::endl;
     ReleaseMutex(hLogMutex);
     Sleep(SLEEP_TIME);
 
     WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " reader: read the page #" << dwPageToRead << ". There was: " << (lpCharFileView+(PAGE_SIZE*dwPageToRead)) << ". Release writer's semaphore" << std::endl;
+    logPage << GetTickCount() << " | " << dwPageToRead << ": free" << std::endl;
     //logStream << GetTickCount() << " | " << ID << " reader: read the page #" << dwPageToRead << ". Release writer's semaphore" << std::endl;
     //logStream.flush();
     ReleaseMutex(hLogMutex);
     ReleaseSemaphore(hWriteSemaphore[dwPageToRead], 1, NULL);
+
+    logPage.close();
 }
