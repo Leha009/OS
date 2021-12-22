@@ -1,0 +1,318 @@
+24215296 | 0 writer: ready to write!
+24215296 | 0 writer: waiting for writer's semaphore
+24215296 | 0 writer: writing page number to page #0
+24215406 | 1 writer: ready to write!
+24215406 | 1 writer: waiting for writer's semaphore
+24215406 | 1 writer: writing page number to page #1
+24215421 | 4 writer: ready to write!
+24215421 | 4 writer: waiting for writer's semaphore
+24215421 | 4 writer: writing page number to page #2
+24215421 | 6 writer: ready to write!
+24215421 | 6 writer: waiting for writer's semaphore
+24215421 | 6 writer: writing page number to page #3
+24215437 | 3 writer: ready to write!
+24215437 | 3 writer: waiting for writer's semaphore
+24215437 | 3 writer: writing page number to page #4
+24215437 | 7 writer: ready to write!
+24215437 | 7 writer: waiting for writer's semaphore
+24215437 | 7 writer: writing page number to page #5
+24215468 | 2 writer: ready to write!
+24215468 | 5 writer: ready to write!
+24215468 | 2 writer: waiting for writer's semaphore
+24215468 | 2 writer: writing page number to page #6
+24215468 | 5 writer: waiting for writer's semaphore
+24215468 | 5 writer: writing page number to page #7
+24215468 | 10 writer: ready to write!
+24215468 | 10 writer: waiting for writer's semaphore
+24215468 | 10 writer: writing page number to page #8
+24215500 | 9 writer: ready to write!
+24215500 | 9 writer: waiting for writer's semaphore
+24215500 | 9 writer: writing page number to page #9
+24215531 | 8 writer: ready to write!
+24215531 | 8 writer: waiting for writer's semaphore
+24215531 | 8 writer: writing page number to page #10
+24215546 | 12 writer: ready to write!
+24215546 | 12 writer: waiting for writer's semaphore
+24215546 | 12 writer: writing page number to page #11
+24215546 | 11 writer: ready to write!
+24215546 | 11 writer: waiting for writer's semaphore
+24215546 | 11 writer: writing page number to page #12
+24215546 | 14 writer: ready to write!
+24215546 | 14 writer: waiting for writer's semaphore
+24215546 | 14 writer: writing page number to page #13
+24215640 | 16 writer: ready to write!
+24215640 | 16 writer: waiting for writer's semaphore
+24215640 | 16 writer: writing page number to page #14
+24215687 | 13 writer: ready to write!
+24215687 | 13 writer: waiting for writer's semaphore
+24215687 | 13 writer: writing page number to page #15
+24215687 | 15 writer: ready to write!
+24215687 | 15 writer: waiting for writer's semaphore
+24215687 | 15 writer: writing page number to page #16
+24215703 | 20 writer: ready to write!
+24215703 | 20 writer: waiting for writer's semaphore
+24215703 | 20 writer: writing page number to page #17
+24215703 | 23 writer: ready to write!
+24215703 | 23 writer: waiting for writer's semaphore
+24215703 | 23 writer: writing page number to page #18
+24215703 | 34 writer: ready to write!
+24215703 | 34 writer: waiting for writer's semaphore
+24215703 | 34 writer: writing page number to page #19
+24215703 | 37 writer: ready to write!
+24215703 | 37 writer: waiting for writer's semaphore
+24215718 | 31 writer: ready to write!
+24215718 | 31 writer: waiting for writer's semaphore
+24215718 | 22 writer: ready to write!
+24215718 | 22 writer: waiting for writer's semaphore
+24215718 | 36 writer: ready to write!
+24215718 | 36 writer: waiting for writer's semaphore
+24215718 | 25 writer: ready to write!
+24215718 | 25 writer: waiting for writer's semaphore
+24215718 | 33 writer: ready to write!
+24215718 | 33 writer: waiting for writer's semaphore
+24215734 | 35 writer: ready to write!
+24215734 | 35 writer: waiting for writer's semaphore
+24215734 | 39 writer: ready to write!
+24215734 | 39 writer: waiting for writer's semaphore
+24215734 | 27 writer: ready to write!
+24215734 | 27 writer: waiting for writer's semaphore
+24215734 | 30 writer: ready to write!
+24215734 | 30 writer: waiting for writer's semaphore
+24215734 | 21 writer: ready to write!
+24215734 | 21 writer: waiting for writer's semaphore
+24215734 | 24 writer: ready to write!
+24215734 | 24 writer: waiting for writer's semaphore
+24215734 | 19 writer: ready to write!
+24215734 | 19 writer: waiting for writer's semaphore
+24215750 | 26 writer: ready to write!
+24215750 | 26 writer: waiting for writer's semaphore
+24215750 | 28 writer: ready to write!
+24215750 | 28 writer: waiting for writer's semaphore
+24215750 | 32 writer: ready to write!
+24215750 | 32 writer: waiting for writer's semaphore
+24215750 | 38 writer: ready to write!
+24215750 | 17 writer: ready to write!
+24215750 | 38 writer: waiting for writer's semaphore
+24215750 | 17 writer: waiting for writer's semaphore
+24215765 | 18 writer: ready to write!
+24215765 | 18 writer: waiting for writer's semaphore
+24215796 | 29 writer: ready to write!
+24215796 | 29 writer: waiting for writer's semaphore
+24216265 | 0 writer: release reader's semaphore #0
+24216265 | 0 writer: waiting for writer's semaphore
+24216375 | 1 writer: release reader's semaphore #1
+24216375 | 1 writer: waiting for writer's semaphore
+24216390 | 4 writer: release reader's semaphore #2
+24216390 | 4 writer: waiting for writer's semaphore
+24216390 | 6 writer: release reader's semaphore #3
+24216390 | 6 writer: waiting for writer's semaphore
+24216406 | 3 writer: release reader's semaphore #4
+24216406 | 3 writer: waiting for writer's semaphore
+24216406 | 7 writer: release reader's semaphore #5
+24216406 | 7 writer: waiting for writer's semaphore
+24216437 | 2 writer: release reader's semaphore #6
+24216437 | 5 writer: release reader's semaphore #7
+24216437 | 2 writer: waiting for writer's semaphore
+24216437 | 5 writer: waiting for writer's semaphore
+24216437 | 10 writer: release reader's semaphore #8
+24216437 | 10 writer: waiting for writer's semaphore
+24216468 | 9 writer: release reader's semaphore #9
+24216468 | 9 writer: waiting for writer's semaphore
+24216500 | 8 writer: release reader's semaphore #10
+24216500 | 8 writer: waiting for writer's semaphore
+24216515 | 12 writer: release reader's semaphore #11
+24216515 | 12 writer: waiting for writer's semaphore
+24216515 | 11 writer: release reader's semaphore #12
+24216515 | 11 writer: waiting for writer's semaphore
+24216515 | 14 writer: release reader's semaphore #13
+24216515 | 14 writer: waiting for writer's semaphore
+24216609 | 16 writer: release reader's semaphore #14
+24216609 | 16 writer: waiting for writer's semaphore
+24216656 | 13 writer: release reader's semaphore #15
+24216656 | 13 writer: waiting for writer's semaphore
+24216671 | 15 writer: release reader's semaphore #16
+24216671 | 15 writer: waiting for writer's semaphore
+24216671 | 20 writer: release reader's semaphore #17
+24216671 | 20 writer: waiting for writer's semaphore
+24216671 | 23 writer: release reader's semaphore #18
+24216671 | 23 writer: waiting for writer's semaphore
+24216687 | 34 writer: release reader's semaphore #19
+24216687 | 34 writer: waiting for writer's semaphore
+24217234 | 37 writer: writing page number to page #0
+24217343 | 31 writer: writing page number to page #1
+24217359 | 22 writer: writing page number to page #2
+24217359 | 36 writer: writing page number to page #3
+24217375 | 25 writer: writing page number to page #4
+24217375 | 33 writer: writing page number to page #5
+24217406 | 35 writer: writing page number to page #6
+24217406 | 39 writer: writing page number to page #7
+24217406 | 27 writer: writing page number to page #8
+24217437 | 30 writer: writing page number to page #9
+24217468 | 21 writer: writing page number to page #10
+24217484 | 24 writer: writing page number to page #11
+24217484 | 19 writer: writing page number to page #12
+24217484 | 26 writer: writing page number to page #13
+24217578 | 28 writer: writing page number to page #14
+24217640 | 32 writer: writing page number to page #15
+24217640 | 38 writer: writing page number to page #16
+24217640 | 17 writer: writing page number to page #17
+24217640 | 18 writer: writing page number to page #18
+24217656 | 29 writer: writing page number to page #19
+24218203 | 37 writer: release reader's semaphore #0
+24218203 | 37 writer: waiting for writer's semaphore
+24218328 | 31 writer: release reader's semaphore #1
+24218328 | 31 writer: waiting for writer's semaphore
+24218328 | 22 writer: release reader's semaphore #2
+24218328 | 22 writer: waiting for writer's semaphore
+24218328 | 36 writer: release reader's semaphore #3
+24218328 | 36 writer: waiting for writer's semaphore
+24218343 | 25 writer: release reader's semaphore #4
+24218343 | 25 writer: waiting for writer's semaphore
+24218343 | 33 writer: release reader's semaphore #5
+24218343 | 33 writer: waiting for writer's semaphore
+24218375 | 35 writer: release reader's semaphore #6
+24218375 | 35 writer: waiting for writer's semaphore
+24218375 | 39 writer: release reader's semaphore #7
+24218375 | 27 writer: release reader's semaphore #8
+24218375 | 39 writer: waiting for writer's semaphore
+24218375 | 27 writer: waiting for writer's semaphore
+24218406 | 30 writer: release reader's semaphore #9
+24218406 | 30 writer: waiting for writer's semaphore
+24218437 | 21 writer: release reader's semaphore #10
+24218437 | 21 writer: waiting for writer's semaphore
+24218453 | 24 writer: release reader's semaphore #11
+24218453 | 24 writer: waiting for writer's semaphore
+24218453 | 26 writer: release reader's semaphore #13
+24218453 | 19 writer: release reader's semaphore #12
+24218453 | 19 writer: waiting for writer's semaphore
+24218453 | 26 writer: waiting for writer's semaphore
+24218546 | 28 writer: release reader's semaphore #14
+24218546 | 28 writer: waiting for writer's semaphore
+24218609 | 32 writer: release reader's semaphore #15
+24218609 | 32 writer: waiting for writer's semaphore
+24218609 | 38 writer: release reader's semaphore #16
+24218609 | 38 writer: waiting for writer's semaphore
+24218609 | 17 writer: release reader's semaphore #17
+24218609 | 17 writer: waiting for writer's semaphore
+24218625 | 18 writer: release reader's semaphore #18
+24218625 | 18 writer: waiting for writer's semaphore
+24218625 | 29 writer: release reader's semaphore #19
+24218625 | 29 writer: waiting for writer's semaphore
+24219171 | 0 writer: writing page number to page #0
+24219296 | 1 writer: writing page number to page #1
+24219296 | 4 writer: writing page number to page #2
+24219312 | 6 writer: writing page number to page #3
+24219312 | 3 writer: writing page number to page #4
+24219312 | 7 writer: writing page number to page #5
+24219343 | 2 writer: writing page number to page #6
+24219343 | 5 writer: writing page number to page #8
+24219343 | 10 writer: writing page number to page #7
+24219375 | 9 writer: writing page number to page #9
+24219406 | 8 writer: writing page number to page #10
+24219421 | 12 writer: writing page number to page #11
+24219421 | 11 writer: writing page number to page #12
+24219421 | 14 writer: writing page number to page #13
+24219515 | 16 writer: writing page number to page #14
+24219578 | 13 writer: writing page number to page #15
+24219578 | 15 writer: writing page number to page #16
+24219578 | 20 writer: writing page number to page #17
+24219593 | 23 writer: writing page number to page #18
+24219593 | 34 writer: writing page number to page #19
+24220437 | 0 writer: release reader's semaphore #0
+24220546 | 0 writer: going down...
+24220562 | 1 writer: release reader's semaphore #1
+24220578 | 4 writer: release reader's semaphore #2
+24220578 | 6 writer: release reader's semaphore #3
+24220593 | 3 writer: release reader's semaphore #4
+24220593 | 13 writer: release reader's semaphore #15
+24220593 | 15 writer: release reader's semaphore #16
+24220593 | 7 writer: release reader's semaphore #5
+24220593 | 20 writer: release reader's semaphore #17
+24220609 | 23 writer: release reader's semaphore #18
+24220609 | 34 writer: release reader's semaphore #19
+24220625 | 2 writer: release reader's semaphore #6
+24220625 | 10 writer: release reader's semaphore #7
+24220625 | 5 writer: release reader's semaphore #8
+24220656 | 9 writer: release reader's semaphore #9
+24220671 | 1 writer: going down...
+24220671 | 4 writer: going down...
+24220687 | 6 writer: going down...
+24220687 | 8 writer: release reader's semaphore #10
+24220687 | 13 writer: going down...
+24220687 | 3 writer: going down...
+24220687 | 15 writer: going down...
+24220687 | 7 writer: going down...
+24220703 | 20 writer: going down...
+24220703 | 12 writer: release reader's semaphore #11
+24220703 | 11 writer: release reader's semaphore #12
+24220703 | 23 writer: going down...
+24220703 | 14 writer: release reader's semaphore #13
+24220703 | 34 writer: going down...
+24220718 | 2 writer: going down...
+24220718 | 10 writer: going down...
+24220765 | 9 writer: going down...
+24220781 | 8 writer: going down...
+24220796 | 16 writer: release reader's semaphore #14
+24220796 | 12 writer: going down...
+24220796 | 11 writer: going down...
+24220812 | 14 writer: going down...
+24220890 | 16 writer: going down...
+24221703 | 37 writer: writing page number to page #10
+24221718 | 31 writer: writing page number to page #11
+24221718 | 22 writer: writing page number to page #12
+24221718 | 36 writer: writing page number to page #13
+24221718 | 25 writer: writing page number to page #0
+24221812 | 33 writer: writing page number to page #14
+24221843 | 35 writer: writing page number to page #1
+24221859 | 39 writer: writing page number to page #2
+24221859 | 27 writer: writing page number to page #3
+24221859 | 30 writer: writing page number to page #4
+24221859 | 21 writer: writing page number to page #15
+24221859 | 24 writer: writing page number to page #16
+24221875 | 19 writer: writing page number to page #5
+24221875 | 26 writer: writing page number to page #17
+24221875 | 28 writer: writing page number to page #18
+24221875 | 32 writer: writing page number to page #19
+24221906 | 38 writer: writing page number to page #6
+24221906 | 17 writer: writing page number to page #7
+24221906 | 18 writer: writing page number to page #8
+24221937 | 29 writer: writing page number to page #9
+24222703 | 37 writer: release reader's semaphore #10
+24222718 | 31 writer: release reader's semaphore #11
+24222734 | 22 writer: release reader's semaphore #12
+24222734 | 36 writer: release reader's semaphore #13
+24222734 | 25 writer: release reader's semaphore #0
+24222812 | 37 writer: going down...
+24222828 | 33 writer: release reader's semaphore #14
+24222828 | 31 writer: going down...
+24222828 | 22 writer: going down...
+24222828 | 36 writer: going down...
+24222828 | 25 writer: going down...
+24222859 | 35 writer: release reader's semaphore #1
+24222859 | 39 writer: release reader's semaphore #2
+24222875 | 27 writer: release reader's semaphore #3
+24222875 | 30 writer: release reader's semaphore #4
+24222875 | 21 writer: release reader's semaphore #15
+24222875 | 24 writer: release reader's semaphore #16
+24222890 | 19 writer: release reader's semaphore #5
+24222890 | 26 writer: release reader's semaphore #17
+24222890 | 28 writer: release reader's semaphore #18
+24222890 | 32 writer: release reader's semaphore #19
+24222906 | 38 writer: release reader's semaphore #6
+24222906 | 17 writer: release reader's semaphore #7
+24222906 | 18 writer: release reader's semaphore #8
+24222921 | 33 writer: going down...
+24222953 | 29 writer: release reader's semaphore #9
+24222953 | 35 writer: going down...
+24222968 | 39 writer: going down...
+24222968 | 27 writer: going down...
+24222984 | 30 writer: going down...
+24222984 | 24 writer: going down...
+24222984 | 19 writer: going down...
+24222984 | 26 writer: going down...
+24223000 | 28 writer: going down...
+24223000 | 32 writer: going down...
+24223015 | 38 writer: going down...
+24223015 | 17 writer: going down...
+24223015 | 18 writer: going down...
+24223046 | 29 writer: going down...

@@ -169,6 +169,7 @@ void StartWrite_(
     DWORD dwPageToWriteIn = WaitForMultipleObjects(PAGE_NUMBER, hWriteSemaphore, false, INFINITE);
     WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " writer: writing page number to page #" << dwPageToWriteIn << std::endl;
+    logPage.flush();
     logPage << GetTickCount() << " | " << dwPageToWriteIn << ": writing in" << std::endl;
     //logStream.flush();
     ReleaseMutex(hLogMutex);
@@ -178,6 +179,7 @@ void StartWrite_(
 
     WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " writer: release reader's semaphore #" << dwPageToWriteIn << std::endl;
+    logPage.flush();
     logPage << GetTickCount() << " | " << dwPageToWriteIn << ": free" << std::endl;
     //logStream.flush();
     ReleaseMutex(hLogMutex);
