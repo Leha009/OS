@@ -62,7 +62,15 @@ int main()
                 }
                 else
                 {
-                    std::cout << "Failed to connect client to named pipe! Error code is " << GetLastError() << "\n";
+                    DWORD dwError = GetLastError();
+                    if(dwError == 535)
+                    {
+                        std::cout << "Client is already connected to the pipe!\n";
+                    }
+                    else
+                    {
+                        std::cout << "Failed to connect client to named pipe! Error code is " << dwError << "\n";
+                    }
                 }
                 system("pause");
                 break;

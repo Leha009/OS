@@ -36,7 +36,15 @@ int main()
             }
             else
             {
-                std::cout << "Failed to connect to a named pipe! Error code is " << GetLastError() << "\n";
+                DWORD dwError = GetLastError();
+                if(dwError == 2)
+                {
+                    std::cout << "No pipe was created with this name!\n";
+                }
+                else
+                {
+                    std::cout << "Failed to connect to a named pipe! Error code is " << dwError << "\n";
+                }
             }
             system("pause");
         }
@@ -71,19 +79,22 @@ int SelectMenu()
 
 HANDLE ConnectToPipe()
 {
-    HANDLE hPipe;
+    HANDLE hPipe = INVALID_HANDLE_VALUE;
     TCHAR sPipeName[BUFFER_SIZE+1];
     std::cout << "Input the name of a pipe (" << BUFFER_SIZE << " symbols maximum, must starts with \\\\.\\pipe\\): ";
     std::cin >> sPipeName;
-    hPipe = CreateFile(
-        sPipeName,
-        GENERIC_READ,
-        0UL,
-        NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_READONLY | FILE_FLAG_OVERLAPPED,
-        NULL
-    );
+    if(WaitNamedPipe(sPipeName, NMPWAIT_WAIT_FOREVER))
+    {
+        hPipe = CreateFile(
+            sPipeName,
+            GENERIC_READ,
+            0UL,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_READONLY | FILE_FLAG_OVERLAPPED,
+            NULL
+        );
+    }
     return hPipe;
 }
 
