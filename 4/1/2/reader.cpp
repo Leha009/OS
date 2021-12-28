@@ -27,6 +27,7 @@
 void StartRead_(
     HANDLE hReadSemaphore[PAGE_NUMBER], 
     HANDLE hWriteSemaphore[PAGE_NUMBER], 
+    HANDLE hLogMutex, 
     std::fstream& logStream, 
     LPCSTR ID,
     char* lpCharFileView);
@@ -78,44 +79,61 @@ int main(int argc, char* argv[])
     }
     if(bOpenSuccess)
     {
-        HANDLE hFileMap = OpenFileMapping(FILE_MAP_WRITE, false, MAP_FILE_NAME);
-        if(hFileMap != NULL)
+        HANDLE hLogMutex = OpenMutexA(SYNCHRONIZE | MUTEX_MODIFY_STATE, false, LOG_MUTEX_NAME);
+        if(hLogMutex != NULL)
         {
-            // Проецируем в память процесса
-            char* lpCharFileView = (char*)MapViewOfFile(hFileMap, FILE_MAP_WRITE, 0UL, 0UL, 0UL);
-            if(lpCharFileView != NULL)
+            HANDLE hFileMap = OpenFileMapping(FILE_MAP_WRITE, false, MAP_FILE_NAME);
+            if(hFileMap != NULL)
             {
-                if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE))
+                // Проецируем в память процесса
+                char* lpCharFileView = (char*)MapViewOfFile(hFileMap, FILE_MAP_WRITE, 0UL, 0UL, 0UL);
+                if(lpCharFileView != NULL)
                 {
-                    logStream << GetTickCount() << " | " << sID << " reader: ready to read!" << std::endl;
-                    logStream.flush();
-
-                    for(int i = 0; i < iRepeats; ++i)
+                    if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE))
                     {
-                        StartRead_(hReadSemaphore, hWriteSemaphore, logStream, sID, lpCharFileView);
+                        //WaitForSingleObject(hLogMutex, INFINITE);
+                        logStream << GetTickCount() << " | " << sID << " reader: ready to read!" << std::endl;
+                        //logStream.flush();
+                        //ReleaseMutex(hLogMutex);
+
+                        for(int i = 0; i < iRepeats; ++i)
+                        {
+                            StartRead_(hReadSemaphore, hWriteSemaphore, hLogMutex, logStream, sID, lpCharFileView);
+                        }
+
+                        VirtualUnlock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE);
+                    }
+                    else
+                    {
+                        WaitForSingleObject(hLogMutex, INFINITE);
+                        logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to virtual lock! Error code is " << GetLastError() << std::endl;
+                        logStream.flush();
+                        ReleaseMutex(hLogMutex);
                     }
 
-                    VirtualUnlock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE);
+                    UnmapViewOfFile(lpCharFileView);
                 }
                 else
                 {
-                    logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to virtual lock! Error code is " << GetLastError() << std::endl;
+                    WaitForSingleObject(hLogMutex, INFINITE);
+                    logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to get view of file! Error code is " << GetLastError() << std::endl;
                     logStream.flush();
+                    ReleaseMutex(hLogMutex);
                 }
 
-                UnmapViewOfFile(lpCharFileView);
+                CloseHandle(hFileMap);
             }
             else
             {
-                logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to get view of file! Error code is " << GetLastError() << std::endl;
+                WaitForSingleObject(hLogMutex, INFINITE);
+                logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to get file mapping! Error code is " << GetLastError() << std::endl;
                 logStream.flush();
+                ReleaseMutex(hLogMutex);
             }
-
-            CloseHandle(hFileMap);
         }
         else
         {
-            logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to get file mapping! Error code is " << GetLastError() << std::endl;
+            logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " reader: failed to get log mutex! Error code is " << GetLastError() << std::endl;
             logStream.flush();
         }
     }
@@ -134,19 +152,37 @@ int main(int argc, char* argv[])
 void StartRead_(
     HANDLE hReadSemaphore[PAGE_NUMBER], 
     HANDLE hWriteSemaphore[PAGE_NUMBER], 
+    HANDLE hLogMutex, 
     std::fstream& logStream, 
     LPCSTR ID,
     char* lpCharFileView)
 {
+    //std::fstream logPage;
+    //logPage.open("./pages.log", std::fstream::out | std::fstream::app);
+
+    //WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " reader: waiting for read semaphore..." << std::endl;
     logStream.flush();
+    //ReleaseMutex(hLogMutex);
 
     DWORD dwPageToRead = WaitForMultipleObjects(PAGE_NUMBER, hReadSemaphore, false, INFINITE);
+    //WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " reader: reading page #" << dwPageToRead << std::endl;
     logStream.flush();
+    //logPage.flush();
+    //logPage << GetTickCount() << " | " <<  dwPageToRead << ": is being read" << std::endl;
+    //ReleaseMutex(hLogMutex);
     Sleep(SLEEP_TIME);
 
+    //WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " reader: read the page #" << dwPageToRead << ". There was: " << (lpCharFileView+(PAGE_SIZE*dwPageToRead)) << ". Release writer's semaphore" << std::endl;
     logStream.flush();
+    //logPage.flush();
+    //logPage << GetTickCount() << " | " << dwPageToRead << ": free" << std::endl;
+    //logStream << GetTickCount() << " | " << ID << " reader: read the page #" << dwPageToRead << ". Release writer's semaphore" << std::endl;
+    //ReleaseMutex(hLogMutex);
     ReleaseSemaphore(hWriteSemaphore[dwPageToRead], 1, NULL);
+
+	//logPage.flush();
+    //logPage.close();
 }

@@ -1,13 +1,20 @@
+import sys
+
+if len(sys.argv) < 2:
+	raise Exception("Укажите число процессов (только читателей/писателей)")
+
+iProcesses = int(sys.argv[1])
+
 actionLog = open("actions.log", "r")
 businessLog = open("business.m", "w", encoding="utf-8")
 
-readerStart = 100
+readerStart = int(iProcesses)*2 + 10 #220
 
 minTime = -1
 lastTime = 0
 #last time
-readers = [-1 for i in range(100)]
-writers = [-1 for i in range(100)]
+readers = [-1 for i in range(iProcesses+1)]
+writers = [-1 for i in range(iProcesses+1)]
 
 businessLog.write("figure;\nhold on;\n")
 for line in actionLog:
@@ -44,8 +51,8 @@ for line in actionLog:
 				color.append(0)
 			elif state == 1:
 				color.append(0)
-				color.append(0)
 				color.append(1)
+				color.append(0)
 			elif state == 2:
 				color.append(1)
 				color.append(0)

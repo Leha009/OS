@@ -16,6 +16,7 @@
 #endif
 
 #define SLEEP_TIME 500 + rand() % 1001      // Ждем от 500 до 1500 мс
+#define LOG_MUTEX_NAME "writerMutexLog"
 #define sID argv[0]
 #define iRepeats std::atoi(argv[1])
 #define LOG_FILE_NAME (std::string("./writers/writer") + sID + ".log").c_str()
@@ -26,6 +27,7 @@
 void StartWrite_(
     HANDLE hReadSemaphore[PAGE_NUMBER], 
     HANDLE hWriteSemaphore[PAGE_NUMBER], 
+    HANDLE hLogMutex, 
     std::fstream& logStream, 
     LPCSTR ID,
     char* lpCharFileView);
@@ -77,44 +79,63 @@ int main(int argc, char* argv[])
     }
     if(bOpenSuccess)
     {
-        HANDLE hFileMap = OpenFileMapping(FILE_MAP_WRITE, false, MAP_FILE_NAME);
-        if(hFileMap != NULL)
+        HANDLE hLogMutex = OpenMutexA(SYNCHRONIZE | MUTEX_MODIFY_STATE, false, LOG_MUTEX_NAME);
+        if(hLogMutex != NULL)
         {
-            // Проецируем в память процесса
-            char* lpCharFileView = (char*)MapViewOfFile(hFileMap, FILE_MAP_WRITE, 0UL, 0UL, 0UL);
-            if(lpCharFileView != NULL)
+            HANDLE hFileMap = OpenFileMapping(FILE_MAP_WRITE, false, MAP_FILE_NAME);
+            if(hFileMap != NULL)
             {
-                if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE))
+                // Проецируем в память процесса
+                char* lpCharFileView = (char*)MapViewOfFile(hFileMap, FILE_MAP_WRITE, 0UL, 0UL, 0UL);
+                if(lpCharFileView != NULL)
                 {
-                    logStream << GetTickCount() << " | " << sID << " writer: ready to write!" << std::endl;
-                    logStream.flush();
-
-                    for(int i = 0; i < iRepeats; ++i)
+                    if(VirtualLock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE))
                     {
-                        StartWrite_(hReadSemaphore, hWriteSemaphore, logStream, sID, lpCharFileView);
+                        //WaitForSingleObject(hLogMutex, INFINITE);
+                        logStream << GetTickCount() << " | " << sID << " writer: ready to write!" << std::endl;
+                        //logStream.flush();
+                        //ReleaseMutex(hLogMutex);
+
+                        for(int i = 0; i < iRepeats; ++i)
+                        {
+                            StartWrite_(hReadSemaphore, hWriteSemaphore, hLogMutex, logStream, sID, lpCharFileView);
+                        }
+
+                        VirtualUnlock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE);
+                    }
+                    else
+                    {
+                        WaitForSingleObject(hLogMutex, INFINITE);
+                        logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to virtual lock! Error code is " << GetLastError() << std::endl;
+                        logStream.flush();
+                        ReleaseMutex(hLogMutex);
                     }
 
-                    VirtualUnlock(lpCharFileView, PAGE_NUMBER*PAGE_SIZE*CHAR_SIZE);
+                    UnmapViewOfFile(lpCharFileView);
                 }
                 else
                 {
-                    logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to virtual lock! Error code is " << GetLastError() << std::endl;
+                    WaitForSingleObject(hLogMutex, INFINITE);
+                    logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to get view of file! Error code is " << GetLastError() << std::endl;
                     logStream.flush();
+                    ReleaseMutex(hLogMutex);
                 }
 
-                UnmapViewOfFile(lpCharFileView);
+                CloseHandle(hFileMap);
             }
             else
             {
-                logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to get view of file! Error code is " << GetLastError() << std::endl;
+                WaitForSingleObject(hLogMutex, INFINITE);
+                logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to get file mapping! Error code is " << GetLastError() << std::endl;
                 logStream.flush();
+                ReleaseMutex(hLogMutex);
             }
 
-            CloseHandle(hFileMap);
+            CloseHandle(hLogMutex);
         }
         else
         {
-            logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to get file mapping! Error code is " << GetLastError() << std::endl;
+            logStream << GetTickCount() << " | " << GetTickCount() << " | " << sID << " writer: failed to get log mutex! Error code is " << GetLastError() << std::endl;
             logStream.flush();
         }
     }
@@ -133,21 +154,38 @@ int main(int argc, char* argv[])
 void StartWrite_(
     HANDLE hReadSemaphore[PAGE_NUMBER], 
     HANDLE hWriteSemaphore[PAGE_NUMBER], 
+    HANDLE hLogMutex, 
     std::fstream& logStream, 
     LPCSTR ID,
     char* lpCharFileView)
 {
+    //std::fstream logPage;
+    //logPage.open("./pages.log", std::fstream::out | std::fstream::app);
+
+    //WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " writer: waiting for writer's semaphore" << std::endl;
     logStream.flush();
+    //ReleaseMutex(hLogMutex);
 
     DWORD dwPageToWriteIn = WaitForMultipleObjects(PAGE_NUMBER, hWriteSemaphore, false, INFINITE);
+    //WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " writer: writing page number to page #" << dwPageToWriteIn << std::endl;
     logStream.flush();
+    //logPage.flush();
+    //logPage << GetTickCount() << " | " << dwPageToWriteIn << ": writing in" << std::endl;
+    //ReleaseMutex(hLogMutex);
     std::string sPage = std::to_string(dwPageToWriteIn);
     CopyMemory(lpCharFileView+(PAGE_SIZE*dwPageToWriteIn), sPage.c_str(), sPage.length());
     Sleep(SLEEP_TIME);
 
+    //WaitForSingleObject(hLogMutex, INFINITE);
     logStream << GetTickCount() << " | " << ID << " writer: release reader's semaphore #" << dwPageToWriteIn << std::endl;
     logStream.flush();
+    //logPage.flush();
+    //logPage << GetTickCount() << " | " << dwPageToWriteIn << ": free" << std::endl;
+    //ReleaseMutex(hLogMutex);
     ReleaseSemaphore(hReadSemaphore[dwPageToWriteIn], 1, NULL);
+
+	//logPage.flush();
+    //logPage.close();
 }

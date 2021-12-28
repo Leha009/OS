@@ -19,6 +19,8 @@
 #define IN_PROCESS_INFO(id, repeats) (CHAR*)(std::to_string(id) + " " + std::to_string(repeats)).c_str()
 #endif
 
+#define LOG_READER_MUTEX_NAME "readerMutexLog"
+#define LOG_WRITER_MUTEX_NAME "writerMutexLog"
 #define PAGE_NUMBER 20
 #define PAGE_SIZE 4096
 
@@ -46,6 +48,23 @@ int main(int argc, char* argv[])
     HANDLE  hWriteSemaphore[PAGE_NUMBER],
             hReadSemaphore[PAGE_NUMBER],
             hMappedFile;                // Хендл для проецируемого файла (интересный факт: его нет в папке с приложениями)
+
+    HANDLE  hReaderLogMutex,
+            hWriterLogMutex;
+    
+    hReaderLogMutex = CreateMutexA(NULL, false, LOG_READER_MUTEX_NAME);
+    if(hReaderLogMutex == NULL)
+    {
+        std::cout << "Failed to create log mutex for readers!" << std::endl;
+        return 0;
+    }
+    hWriterLogMutex = CreateMutexA(NULL, false, LOG_WRITER_MUTEX_NAME);
+    if(hWriterLogMutex == NULL)
+    {
+        std::cout << "Failed to create log mutex for writers!" << std::endl;
+        CloseHandle(hReaderLogMutex);
+        return 0;
+    }
 
     bool bInitSuccess = true;
     for(int i = 0; bInitSuccess && i < PAGE_NUMBER; ++i)

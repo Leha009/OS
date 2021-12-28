@@ -1,0 +1,959 @@
+15042187 | 0 writer: ready to write!
+15042187 | 0 writer: waiting for writer's semaphore
+15042187 | 0 writer: writing page number to page #0
+15042312 | 1 writer: ready to write!
+15042312 | 1 writer: waiting for writer's semaphore
+15042312 | 1 writer: writing page number to page #1
+15042312 | 2 writer: ready to write!
+15042312 | 2 writer: waiting for writer's semaphore
+15042312 | 2 writer: writing page number to page #2
+15042328 | 0 reader: ready to read!
+15042328 | 0 reader: waiting for read semaphore...
+15042328 | 3 reader: ready to read!
+15042328 | 3 reader: waiting for read semaphore...
+15042328 | 5 reader: ready to read!
+15042328 | 5 reader: waiting for read semaphore...
+15042359 | 6 reader: ready to read!
+15042359 | 6 reader: waiting for read semaphore...
+15042359 | 7 writer: ready to write!
+15042359 | 7 writer: waiting for writer's semaphore
+15042359 | 7 writer: writing page number to page #3
+15042375 | 1 reader: ready to read!
+15042375 | 1 reader: waiting for read semaphore...
+15042375 | 3 writer: ready to write!
+15042375 | 3 writer: waiting for writer's semaphore
+15042375 | 3 writer: writing page number to page #4
+15042375 | 4 reader: ready to read!
+15042375 | 4 reader: waiting for read semaphore...
+15042375 | 4 writer: ready to write!
+15042375 | 4 writer: waiting for writer's semaphore
+15042375 | 4 writer: writing page number to page #5
+15042390 | 6 writer: ready to write!
+15042390 | 6 writer: waiting for writer's semaphore
+15042390 | 6 writer: writing page number to page #7
+15042390 | 8 writer: ready to write!
+15042390 | 8 writer: waiting for writer's semaphore
+15042390 | 8 writer: writing page number to page #6
+15042406 | 5 writer: ready to write!
+15042406 | 5 writer: waiting for writer's semaphore
+15042406 | 5 writer: writing page number to page #8
+15042406 | 7 reader: ready to read!
+15042406 | 7 reader: waiting for read semaphore...
+15042421 | 2 reader: ready to read!
+15042421 | 2 reader: waiting for read semaphore...
+15042437 | 8 reader: ready to read!
+15042437 | 8 reader: waiting for read semaphore...
+15042468 | 14 writer: ready to write!
+15042468 | 14 writer: waiting for writer's semaphore
+15042468 | 14 writer: writing page number to page #9
+15042468 | 15 reader: ready to read!
+15042468 | 15 reader: waiting for read semaphore...
+15042484 | 12 writer: ready to write!
+15042484 | 12 writer: waiting for writer's semaphore
+15042484 | 12 writer: writing page number to page #10
+15042484 | 17 reader: ready to read!
+15042484 | 17 reader: waiting for read semaphore...
+15042484 | 21 reader: ready to read!
+15042484 | 21 reader: waiting for read semaphore...
+15042500 | 33 reader: ready to read!
+15042500 | 33 reader: waiting for read semaphore...
+15042500 | 9 writer: ready to write!
+15042500 | 9 writer: waiting for writer's semaphore
+15042500 | 9 writer: writing page number to page #11
+15042515 | 11 writer: ready to write!
+15042515 | 11 writer: waiting for writer's semaphore
+15042515 | 11 writer: writing page number to page #12
+15042515 | 28 reader: ready to read!
+15042515 | 28 reader: waiting for read semaphore...
+15042515 | 37 writer: ready to write!
+15042515 | 37 writer: waiting for writer's semaphore
+15042515 | 37 writer: writing page number to page #13
+15042515 | 40 writer: ready to write!
+15042515 | 40 writer: waiting for writer's semaphore
+15042515 | 40 writer: writing page number to page #14
+15042515 | 41 reader: ready to read!
+15042515 | 41 reader: waiting for read semaphore...
+15042531 | 17 writer: ready to write!
+15042531 | 17 writer: waiting for writer's semaphore
+15042531 | 17 writer: writing page number to page #17
+15042531 | 20 writer: ready to write!
+15042531 | 20 writer: waiting for writer's semaphore
+15042531 | 20 writer: writing page number to page #18
+15042531 | 22 writer: ready to write!
+15042531 | 22 writer: waiting for writer's semaphore
+15042531 | 22 writer: writing page number to page #19
+15042531 | 25 reader: ready to read!
+15042531 | 25 reader: waiting for read semaphore...
+15042531 | 27 writer: ready to write!
+15042531 | 27 writer: waiting for writer's semaphore
+15042531 | 27 writer: writing page number to page #16
+15042531 | 43 writer: ready to write!
+15042531 | 43 writer: waiting for writer's semaphore
+15042531 | 43 writer: writing page number to page #15
+15042546 | 16 reader: ready to read!
+15042546 | 24 reader: ready to read!
+15042546 | 24 reader: waiting for read semaphore...
+15042562 | 20 reader: ready to read!
+15042578 | 10 reader: ready to read!
+15042578 | 10 reader: waiting for read semaphore...
+15042578 | 11 reader: ready to read!
+15042578 | 11 reader: waiting for read semaphore...
+15042578 | 12 reader: ready to read!
+15042578 | 12 reader: waiting for read semaphore...
+15042578 | 13 reader: ready to read!
+15042578 | 13 reader: waiting for read semaphore...
+15042578 | 13 writer: ready to write!
+15042578 | 13 writer: waiting for writer's semaphore
+15042578 | 14 reader: ready to read!
+15042578 | 14 reader: waiting for read semaphore...
+15042578 | 16 reader: waiting for read semaphore...
+15042578 | 16 writer: ready to write!
+15042578 | 16 writer: waiting for writer's semaphore
+15042578 | 18 reader: ready to read!
+15042578 | 18 reader: waiting for read semaphore...
+15042578 | 19 reader: ready to read!
+15042578 | 19 reader: waiting for read semaphore...
+15042578 | 19 writer: ready to write!
+15042578 | 19 writer: waiting for writer's semaphore
+15042578 | 22 reader: ready to read!
+15042578 | 22 reader: waiting for read semaphore...
+15042578 | 23 reader: ready to read!
+15042578 | 23 reader: waiting for read semaphore...
+15042578 | 26 reader: ready to read!
+15042578 | 26 reader: waiting for read semaphore...
+15042578 | 34 writer: ready to write!
+15042578 | 34 writer: waiting for writer's semaphore
+15042578 | 36 reader: ready to read!
+15042578 | 36 reader: waiting for read semaphore...
+15042578 | 36 writer: ready to write!
+15042578 | 36 writer: waiting for writer's semaphore
+15042578 | 42 reader: ready to read!
+15042578 | 42 reader: waiting for read semaphore...
+15042593 | 10 writer: ready to write!
+15042593 | 10 writer: waiting for writer's semaphore
+15042593 | 15 writer: ready to write!
+15042593 | 15 writer: waiting for writer's semaphore
+15042593 | 18 writer: ready to write!
+15042593 | 18 writer: waiting for writer's semaphore
+15042593 | 20 reader: waiting for read semaphore...
+15042593 | 21 writer: ready to write!
+15042593 | 21 writer: waiting for writer's semaphore
+15042593 | 28 writer: ready to write!
+15042593 | 28 writer: waiting for writer's semaphore
+15042593 | 32 writer: ready to write!
+15042593 | 32 writer: waiting for writer's semaphore
+15042593 | 33 writer: ready to write!
+15042593 | 33 writer: waiting for writer's semaphore
+15042593 | 50 writer: ready to write!
+15042593 | 50 writer: waiting for writer's semaphore
+15042593 | 9 reader: ready to read!
+15042593 | 9 reader: waiting for read semaphore...
+15042609 | 32 reader: ready to read!
+15042609 | 32 reader: waiting for read semaphore...
+15042609 | 40 reader: ready to read!
+15042609 | 40 reader: waiting for read semaphore...
+15042609 | 42 writer: ready to write!
+15042609 | 42 writer: waiting for writer's semaphore
+15042625 | 26 writer: ready to write!
+15042625 | 26 writer: waiting for writer's semaphore
+15042625 | 29 reader: ready to read!
+15042625 | 29 reader: waiting for read semaphore...
+15042625 | 31 reader: ready to read!
+15042625 | 31 reader: waiting for read semaphore...
+15042625 | 38 reader: ready to read!
+15042625 | 38 reader: waiting for read semaphore...
+15042625 | 39 writer: ready to write!
+15042625 | 39 writer: waiting for writer's semaphore
+15042625 | 49 writer: ready to write!
+15042625 | 49 writer: waiting for writer's semaphore
+15042625 | 55 reader: ready to read!
+15042625 | 55 reader: waiting for read semaphore...
+15042625 | 56 reader: ready to read!
+15042625 | 56 reader: waiting for read semaphore...
+15042640 | 27 reader: ready to read!
+15042640 | 27 reader: waiting for read semaphore...
+15042640 | 34 reader: ready to read!
+15042640 | 34 reader: waiting for read semaphore...
+15042640 | 35 reader: ready to read!
+15042640 | 35 reader: waiting for read semaphore...
+15042640 | 37 reader: ready to read!
+15042640 | 37 reader: waiting for read semaphore...
+15042640 | 43 reader: ready to read!
+15042640 | 43 reader: waiting for read semaphore...
+15042640 | 46 writer: ready to write!
+15042640 | 46 writer: waiting for writer's semaphore
+15042640 | 47 reader: ready to read!
+15042640 | 47 reader: waiting for read semaphore...
+15042640 | 52 writer: ready to write!
+15042640 | 52 writer: waiting for writer's semaphore
+15042640 | 58 reader: ready to read!
+15042640 | 58 reader: waiting for read semaphore...
+15042656 | 29 writer: ready to write!
+15042656 | 29 writer: waiting for writer's semaphore
+15042656 | 31 writer: ready to write!
+15042656 | 31 writer: waiting for writer's semaphore
+15042656 | 39 reader: ready to read!
+15042656 | 39 reader: waiting for read semaphore...
+15042656 | 41 writer: ready to write!
+15042656 | 41 writer: waiting for writer's semaphore
+15042656 | 48 reader: ready to read!
+15042656 | 48 reader: waiting for read semaphore...
+15042656 | 53 writer: ready to write!
+15042656 | 53 writer: waiting for writer's semaphore
+15042656 | 56 writer: ready to write!
+15042656 | 56 writer: waiting for writer's semaphore
+15042656 | 57 writer: ready to write!
+15042656 | 57 writer: waiting for writer's semaphore
+15042671 | 25 writer: ready to write!
+15042671 | 25 writer: waiting for writer's semaphore
+15042671 | 30 writer: ready to write!
+15042671 | 30 writer: waiting for writer's semaphore
+15042671 | 35 writer: ready to write!
+15042671 | 35 writer: waiting for writer's semaphore
+15042671 | 38 writer: ready to write!
+15042671 | 38 writer: waiting for writer's semaphore
+15042671 | 44 reader: ready to read!
+15042671 | 44 reader: waiting for read semaphore...
+15042671 | 45 reader: ready to read!
+15042671 | 45 reader: waiting for read semaphore...
+15042671 | 47 writer: ready to write!
+15042671 | 47 writer: waiting for writer's semaphore
+15042671 | 49 reader: ready to read!
+15042671 | 49 reader: waiting for read semaphore...
+15042671 | 54 writer: ready to write!
+15042671 | 54 writer: waiting for writer's semaphore
+15042687 | 23 writer: ready to write!
+15042687 | 23 writer: waiting for writer's semaphore
+15042687 | 24 writer: ready to write!
+15042687 | 24 writer: waiting for writer's semaphore
+15042687 | 30 reader: ready to read!
+15042687 | 30 reader: waiting for read semaphore...
+15042687 | 45 writer: ready to write!
+15042687 | 45 writer: waiting for writer's semaphore
+15042687 | 48 writer: ready to write!
+15042687 | 48 writer: waiting for writer's semaphore
+15042687 | 51 writer: ready to write!
+15042687 | 51 writer: waiting for writer's semaphore
+15042687 | 52 reader: ready to read!
+15042687 | 52 reader: waiting for read semaphore...
+15042687 | 53 reader: ready to read!
+15042687 | 53 reader: waiting for read semaphore...
+15042687 | 54 reader: ready to read!
+15042687 | 54 reader: waiting for read semaphore...
+15042687 | 55 writer: ready to write!
+15042687 | 55 writer: waiting for writer's semaphore
+15042687 | 58 writer: ready to write!
+15042687 | 58 writer: waiting for writer's semaphore
+15042687 | 59 writer: ready to write!
+15042687 | 59 writer: waiting for writer's semaphore
+15042703 | 44 writer: ready to write!
+15042703 | 44 writer: waiting for writer's semaphore
+15042703 | 46 reader: ready to read!
+15042703 | 46 reader: waiting for read semaphore...
+15042703 | 50 reader: ready to read!
+15042703 | 50 reader: waiting for read semaphore...
+15042703 | 51 reader: ready to read!
+15042703 | 51 reader: waiting for read semaphore...
+15042703 | 57 reader: ready to read!
+15042703 | 57 reader: waiting for read semaphore...
+15042703 | 59 reader: ready to read!
+15042703 | 59 reader: waiting for read semaphore...
+15042812 | 0 reader: reading page #0
+15042812 | 0 writer: release reader's semaphore #0
+15042812 | 0 writer: waiting for writer's semaphore
+15042953 | 3 reader: reading page #5
+15042953 | 4 writer: release reader's semaphore #5
+15042953 | 4 writer: waiting for writer's semaphore
+15043031 | 12 writer: release reader's semaphore #10
+15043031 | 12 writer: waiting for writer's semaphore
+15043031 | 5 reader: reading page #10
+15043046 | 14 writer: release reader's semaphore #9
+15043046 | 14 writer: waiting for writer's semaphore
+15043046 | 6 reader: reading page #9
+15043109 | 1 reader: reading page #17
+15043109 | 17 writer: release reader's semaphore #17
+15043109 | 17 writer: waiting for writer's semaphore
+15043140 | 4 reader: reading page #11
+15043140 | 9 writer: release reader's semaphore #11
+15043140 | 9 writer: waiting for writer's semaphore
+15043187 | 3 writer: release reader's semaphore #4
+15043187 | 3 writer: waiting for writer's semaphore
+15043187 | 7 reader: reading page #4
+15043265 | 2 reader: reading page #3
+15043265 | 7 writer: release reader's semaphore #3
+15043265 | 7 writer: waiting for writer's semaphore
+15043421 | 15 reader: reading page #13
+15043421 | 21 reader: reading page #7
+15043421 | 37 writer: release reader's semaphore #13
+15043421 | 37 writer: waiting for writer's semaphore
+15043421 | 5 writer: release reader's semaphore #8
+15043421 | 5 writer: waiting for writer's semaphore
+15043421 | 6 writer: release reader's semaphore #7
+15043421 | 6 writer: waiting for writer's semaphore
+15043421 | 8 reader: reading page #8
+15043500 | 1 writer: release reader's semaphore #1
+15043500 | 1 writer: waiting for writer's semaphore
+15043500 | 17 reader: reading page #16
+15043500 | 27 writer: release reader's semaphore #16
+15043500 | 27 writer: waiting for writer's semaphore
+15043500 | 33 reader: reading page #1
+15043531 | 41 reader: reading page #6
+15043531 | 8 writer: release reader's semaphore #6
+15043531 | 8 writer: waiting for writer's semaphore
+15043609 | 2 writer: release reader's semaphore #2
+15043609 | 2 writer: waiting for writer's semaphore
+15043609 | 28 reader: reading page #2
+15043625 | 1 reader: read the page #17. There was: 17. Release writer's semaphore
+15043625 | 1 reader: waiting for read semaphore...
+15043625 | 36 writer: writing page number to page #17
+15043671 | 0 reader: read the page #0. There was: 0. Release writer's semaphore
+15043671 | 0 reader: waiting for read semaphore...
+15043671 | 13 writer: writing page number to page #0
+15043671 | 25 reader: reading page #14
+15043671 | 40 writer: release reader's semaphore #14
+15043671 | 40 writer: waiting for writer's semaphore
+15043734 | 24 reader: reading page #15
+15043734 | 43 writer: release reader's semaphore #15
+15043734 | 43 writer: waiting for writer's semaphore
+15043765 | 19 reader: reading page #18
+15043765 | 20 writer: release reader's semaphore #18
+15043765 | 20 writer: waiting for writer's semaphore
+15043875 | 11 reader: reading page #12
+15043875 | 11 writer: release reader's semaphore #12
+15043875 | 11 writer: waiting for writer's semaphore
+15044031 | 22 reader: reading page #19
+15044031 | 22 writer: release reader's semaphore #19
+15044031 | 22 writer: waiting for writer's semaphore
+15044093 | 19 writer: writing page number to page #3
+15044093 | 2 reader: read the page #3. There was: 3. Release writer's semaphore
+15044093 | 2 reader: waiting for read semaphore...
+15044109 | 16 writer: writing page number to page #1
+15044109 | 33 reader: read the page #1. There was: 1. Release writer's semaphore
+15044109 | 33 reader: waiting for read semaphore...
+15044156 | 3 reader: read the page #5. There was: 5. Release writer's semaphore
+15044156 | 3 reader: waiting for read semaphore...
+15044156 | 34 writer: writing page number to page #5
+15044218 | 28 writer: writing page number to page #4
+15044218 | 7 reader: read the page #4. There was: 4. Release writer's semaphore
+15044218 | 7 reader: waiting for read semaphore...
+15044234 | 33 writer: writing page number to page #10
+15044234 | 5 reader: read the page #10. There was: 10. Release writer's semaphore
+15044234 | 5 reader: waiting for read semaphore...
+15044265 | 10 writer: writing page number to page #9
+15044265 | 12 reader: reading page #17
+15044265 | 36 writer: release reader's semaphore #17
+15044265 | 36 writer: waiting for writer's semaphore
+15044265 | 6 reader: read the page #9. There was: 9. Release writer's semaphore
+15044265 | 6 reader: waiting for read semaphore...
+15044328 | 18 writer: writing page number to page #18
+15044328 | 19 reader: read the page #18. There was: 18. Release writer's semaphore
+15044328 | 19 reader: waiting for read semaphore...
+15044375 | 21 reader: read the page #7. There was: 7. Release writer's semaphore
+15044375 | 21 reader: waiting for read semaphore...
+15044375 | 21 writer: writing page number to page #7
+15044390 | 15 writer: writing page number to page #11
+15044390 | 4 reader: read the page #11. There was: 11. Release writer's semaphore
+15044390 | 4 reader: waiting for read semaphore...
+15044468 | 15 reader: read the page #13. There was: 13. Release writer's semaphore
+15044468 | 15 reader: waiting for read semaphore...
+15044468 | 32 writer: writing page number to page #13
+15044484 | 24 reader: read the page #15. There was: 15. Release writer's semaphore
+15044484 | 24 reader: waiting for read semaphore...
+15044484 | 50 writer: writing page number to page #15
+15044531 | 28 reader: read the page #2. There was: 2. Release writer's semaphore
+15044531 | 28 reader: waiting for read semaphore...
+15044531 | 42 writer: writing page number to page #2
+15044578 | 13 writer: release reader's semaphore #0
+15044578 | 13 writer: waiting for writer's semaphore
+15044578 | 18 reader: reading page #0
+15044609 | 19 writer: release reader's semaphore #3
+15044609 | 19 writer: waiting for writer's semaphore
+15044609 | 42 reader: reading page #3
+15044765 | 26 writer: writing page number to page #8
+15044765 | 8 reader: read the page #8. There was: 8. Release writer's semaphore
+15044765 | 8 reader: waiting for read semaphore...
+15044843 | 34 writer: release reader's semaphore #5
+15044843 | 34 writer: waiting for writer's semaphore
+15044843 | 36 reader: reading page #5
+15044875 | 17 reader: read the page #16. There was: 16. Release writer's semaphore
+15044875 | 17 reader: waiting for read semaphore...
+15044875 | 49 writer: writing page number to page #16
+15044906 | 39 writer: writing page number to page #6
+15044906 | 41 reader: read the page #6. There was: 6. Release writer's semaphore
+15044906 | 41 reader: waiting for read semaphore...
+15045031 | 10 reader: reading page #7
+15045031 | 11 reader: read the page #12. There was: 12. Release writer's semaphore
+15045031 | 11 reader: waiting for read semaphore...
+15045031 | 21 writer: release reader's semaphore #7
+15045031 | 21 writer: waiting for writer's semaphore
+15045031 | 52 writer: writing page number to page #12
+15045093 | 14 reader: reading page #4
+15045093 | 28 writer: release reader's semaphore #4
+15045093 | 28 writer: waiting for writer's semaphore
+15045156 | 25 reader: read the page #14. There was: 14. Release writer's semaphore
+15045156 | 25 reader: waiting for read semaphore...
+15045156 | 46 writer: writing page number to page #14
+15045203 | 23 reader: reading page #10
+15045203 | 33 writer: release reader's semaphore #10
+15045203 | 33 writer: waiting for writer's semaphore
+15045296 | 16 reader: reading page #18
+15045296 | 18 writer: release reader's semaphore #18
+15045296 | 18 writer: waiting for writer's semaphore
+15045375 | 15 writer: release reader's semaphore #11
+15045375 | 15 writer: waiting for writer's semaphore
+15045375 | 26 reader: reading page #11
+15045390 | 13 reader: reading page #15
+15045390 | 42 writer: release reader's semaphore #2
+15045390 | 42 writer: waiting for writer's semaphore
+15045390 | 50 writer: release reader's semaphore #15
+15045390 | 50 writer: waiting for writer's semaphore
+15045390 | 9 reader: reading page #2
+15045406 | 10 writer: release reader's semaphore #9
+15045406 | 10 writer: waiting for writer's semaphore
+15045406 | 20 reader: reading page #9
+15045437 | 22 reader: read the page #19. There was: 19. Release writer's semaphore
+15045437 | 22 reader: waiting for read semaphore...
+15045437 | 29 writer: writing page number to page #19
+15045453 | 36 reader: read the page #5. There was: 5. Release writer's semaphore
+15045453 | 36 reader: waiting for read semaphore...
+15045453 | 56 writer: writing page number to page #5
+15045531 | 16 writer: release reader's semaphore #1
+15045531 | 16 writer: waiting for writer's semaphore
+15045531 | 18 reader: read the page #0. There was: 0. Release writer's semaphore
+15045531 | 18 reader: waiting for read semaphore...
+15045531 | 40 reader: reading page #1
+15045531 | 57 writer: writing page number to page #0
+15045562 | 32 reader: reading page #13
+15045562 | 32 writer: release reader's semaphore #13
+15045562 | 32 writer: waiting for writer's semaphore
+15045578 | 39 writer: release reader's semaphore #6
+15045578 | 39 writer: waiting for writer's semaphore
+15045578 | 55 reader: reading page #6
+15045703 | 12 reader: read the page #17. There was: 17. Release writer's semaphore
+15045703 | 12 reader: waiting for read semaphore...
+15045703 | 41 writer: writing page number to page #17
+15045921 | 26 writer: release reader's semaphore #8
+15045921 | 26 writer: waiting for writer's semaphore
+15045921 | 31 reader: reading page #8
+15046000 | 20 reader: read the page #9. There was: 9. Release writer's semaphore
+15046000 | 20 reader: waiting for read semaphore...
+15046000 | 31 writer: writing page number to page #9
+15046062 | 10 reader: read the page #7. There was: 7. Release writer's semaphore
+15046062 | 10 reader: waiting for read semaphore...
+15046062 | 53 writer: writing page number to page #7
+15046078 | 35 writer: writing page number to page #3
+15046078 | 42 reader: read the page #3. There was: 3. Release writer's semaphore
+15046078 | 42 reader: waiting for read semaphore...
+15046156 | 14 reader: read the page #4. There was: 4. Release writer's semaphore
+15046156 | 14 reader: waiting for read semaphore...
+15046156 | 38 writer: writing page number to page #4
+15046203 | 29 writer: release reader's semaphore #19
+15046203 | 29 writer: waiting for writer's semaphore
+15046203 | 38 reader: reading page #19
+15046343 | 29 reader: reading page #12
+15046343 | 52 writer: release reader's semaphore #12
+15046343 | 52 writer: waiting for writer's semaphore
+15046359 | 49 writer: release reader's semaphore #16
+15046359 | 49 writer: waiting for writer's semaphore
+15046359 | 56 reader: reading page #16
+15046406 | 27 reader: reading page #17
+15046406 | 41 writer: release reader's semaphore #17
+15046406 | 41 writer: waiting for writer's semaphore
+15046421 | 23 reader: read the page #10. There was: 10. Release writer's semaphore
+15046421 | 23 reader: waiting for read semaphore...
+15046421 | 25 writer: writing page number to page #10
+15046484 | 32 reader: read the page #13. There was: 13. Release writer's semaphore
+15046484 | 32 reader: waiting for read semaphore...
+15046484 | 54 writer: writing page number to page #13
+15046515 | 30 writer: writing page number to page #2
+15046515 | 46 writer: release reader's semaphore #14
+15046515 | 46 writer: waiting for writer's semaphore
+15046515 | 47 reader: reading page #14
+15046515 | 9 reader: read the page #2. There was: 2. Release writer's semaphore
+15046515 | 9 reader: waiting for read semaphore...
+15046578 | 31 writer: release reader's semaphore #9
+15046578 | 31 writer: waiting for writer's semaphore
+15046578 | 58 reader: reading page #9
+15046625 | 13 reader: read the page #15. There was: 15. Release writer's semaphore
+15046625 | 13 reader: waiting for read semaphore...
+15046625 | 47 writer: writing page number to page #15
+15046687 | 23 writer: writing page number to page #11
+15046687 | 26 reader: read the page #11. There was: 11. Release writer's semaphore
+15046687 | 26 reader: waiting for read semaphore...
+15046718 | 35 reader: reading page #7
+15046718 | 37 reader: reading page #0
+15046718 | 53 writer: release reader's semaphore #7
+15046718 | 53 writer: waiting for writer's semaphore
+15046718 | 57 writer: release reader's semaphore #0
+15046718 | 57 writer: waiting for writer's semaphore
+15046734 | 34 reader: reading page #3
+15046734 | 35 writer: release reader's semaphore #3
+15046734 | 35 writer: waiting for writer's semaphore
+15046734 | 43 reader: reading page #5
+15046734 | 56 writer: release reader's semaphore #5
+15046734 | 56 writer: waiting for writer's semaphore
+15046765 | 16 reader: read the page #18. There was: 18. Release writer's semaphore
+15046765 | 16 reader: waiting for read semaphore...
+15046765 | 24 writer: writing page number to page #18
+15046781 | 40 reader: read the page #1. There was: 1. Release writer's semaphore
+15046781 | 40 reader: waiting for read semaphore...
+15046781 | 58 writer: writing page number to page #1
+15047015 | 48 writer: writing page number to page #6
+15047015 | 55 reader: read the page #6. There was: 6. Release writer's semaphore
+15047015 | 55 reader: waiting for read semaphore...
+15047093 | 29 reader: read the page #12. There was: 12. Release writer's semaphore
+15047093 | 29 reader: waiting for read semaphore...
+15047093 | 45 writer: writing page number to page #12
+15047109 | 38 reader: read the page #19. There was: 19. Release writer's semaphore
+15047109 | 38 reader: waiting for read semaphore...
+15047109 | 59 writer: writing page number to page #19
+15047203 | 55 writer: writing page number to page #16
+15047203 | 56 reader: read the page #16. There was: 16. Release writer's semaphore
+15047203 | 56 reader: waiting for read semaphore...
+15047218 | 31 reader: read the page #8. There was: 8. Release writer's semaphore
+15047218 | 31 reader: waiting for read semaphore...
+15047218 | 44 writer: writing page number to page #14
+15047218 | 47 reader: read the page #14. There was: 14. Release writer's semaphore
+15047218 | 47 reader: waiting for read semaphore...
+15047218 | 51 writer: writing page number to page #8
+15047328 | 25 writer: release reader's semaphore #10
+15047328 | 25 writer: waiting for writer's semaphore
+15047328 | 39 reader: reading page #10
+15047406 | 48 reader: reading page #13
+15047406 | 54 writer: release reader's semaphore #13
+15047406 | 54 writer: waiting for writer's semaphore
+15047453 | 38 writer: release reader's semaphore #4
+15047453 | 38 writer: waiting for writer's semaphore
+15047453 | 45 reader: reading page #4
+15047531 | 0 writer: writing page number to page #7
+15047531 | 35 reader: read the page #7. There was: 7. Release writer's semaphore
+15047531 | 35 reader: waiting for read semaphore...
+15047609 | 27 reader: read the page #17. There was: 17. Release writer's semaphore
+15047609 | 27 reader: waiting for read semaphore...
+15047609 | 4 writer: writing page number to page #17
+15047671 | 12 writer: writing page number to page #0
+15047671 | 37 reader: read the page #0. There was: 0. Release writer's semaphore
+15047671 | 37 reader: waiting for read semaphore...
+15047687 | 24 writer: release reader's semaphore #18
+15047687 | 24 writer: waiting for writer's semaphore
+15047687 | 44 reader: reading page #18
+15047718 | 14 writer: writing page number to page #9
+15047718 | 58 reader: read the page #9. There was: 9. Release writer's semaphore
+15047718 | 58 reader: waiting for read semaphore...
+15047765 | 44 writer: release reader's semaphore #14
+15047765 | 44 writer: waiting for writer's semaphore
+15047765 | 49 reader: reading page #14
+15047781 | 47 writer: release reader's semaphore #15
+15047781 | 47 writer: waiting for writer's semaphore
+15047781 | 54 reader: reading page #15
+15047859 | 30 reader: reading page #1
+15047859 | 58 writer: release reader's semaphore #1
+15047859 | 58 writer: waiting for writer's semaphore
+15047984 | 23 writer: release reader's semaphore #11
+15047984 | 23 writer: waiting for writer's semaphore
+15047984 | 30 writer: release reader's semaphore #2
+15047984 | 30 writer: waiting for writer's semaphore
+15047984 | 52 reader: reading page #2
+15047984 | 53 reader: reading page #11
+15048000 | 17 writer: writing page number to page #3
+15048000 | 34 reader: read the page #3. There was: 3. Release writer's semaphore
+15048000 | 34 reader: waiting for read semaphore...
+15048093 | 43 reader: read the page #5. There was: 5. Release writer's semaphore
+15048093 | 43 reader: waiting for read semaphore...
+15048093 | 9 writer: writing page number to page #5
+15048234 | 48 writer: release reader's semaphore #6
+15048234 | 48 writer: waiting for writer's semaphore
+15048234 | 50 reader: reading page #16
+15048234 | 55 writer: release reader's semaphore #16
+15048234 | 55 writer: waiting for writer's semaphore
+15048234 | 57 reader: reading page #6
+15048296 | 51 reader: reading page #19
+15048296 | 59 writer: release reader's semaphore #19
+15048296 | 59 writer: waiting for writer's semaphore
+15048359 | 3 writer: writing page number to page #18
+15048359 | 44 reader: read the page #18. There was: 18. Release writer's semaphore
+15048359 | 44 reader: waiting for read semaphore...
+15048484 | 0 writer: release reader's semaphore #7
+15048484 | 39 reader: read the page #10. There was: 10. Release writer's semaphore
+15048484 | 39 reader: waiting for read semaphore...
+15048484 | 45 writer: release reader's semaphore #12
+15048484 | 45 writer: waiting for writer's semaphore
+15048484 | 46 reader: reading page #12
+15048484 | 59 reader: reading page #7
+15048484 | 7 writer: writing page number to page #10
+15048578 | 0 writer: going down...
+15048593 | 1 reader: reading page #8
+15048593 | 51 writer: release reader's semaphore #8
+15048593 | 51 writer: waiting for writer's semaphore
+15048609 | 0 reader: reading page #0
+15048609 | 12 writer: release reader's semaphore #0
+15048656 | 2 reader: reading page #5
+15048656 | 9 writer: release reader's semaphore #5
+15048671 | 5 writer: writing page number to page #15
+15048671 | 54 reader: read the page #15. There was: 15. Release writer's semaphore
+15048671 | 54 reader: waiting for read semaphore...
+15048718 | 12 writer: going down...
+15048750 | 37 writer: writing page number to page #13
+15048750 | 48 reader: read the page #13. There was: 13. Release writer's semaphore
+15048750 | 48 reader: waiting for read semaphore...
+15048750 | 9 writer: going down...
+15048781 | 49 reader: read the page #14. There was: 14. Release writer's semaphore
+15048781 | 49 reader: waiting for read semaphore...
+15048781 | 6 writer: writing page number to page #14
+15048843 | 27 writer: writing page number to page #4
+15048843 | 45 reader: read the page #4. There was: 4. Release writer's semaphore
+15048843 | 45 reader: waiting for read semaphore...
+15048859 | 1 writer: writing page number to page #2
+15048859 | 52 reader: read the page #2. There was: 2. Release writer's semaphore
+15048859 | 52 reader: waiting for read semaphore...
+15048921 | 53 reader: read the page #11. There was: 11. Release writer's semaphore
+15048921 | 53 reader: waiting for read semaphore...
+15048921 | 8 writer: writing page number to page #11
+15049046 | 33 reader: reading page #17
+15049046 | 4 writer: release reader's semaphore #17
+15049093 | 14 writer: release reader's semaphore #9
+15049093 | 3 reader: reading page #9
+15049125 | 0 reader: read the page #0. There was: 0. Release writer's semaphore
+15049125 | 2 writer: writing page number to page #0
+15049140 | 4 writer: going down...
+15049156 | 40 writer: writing page number to page #6
+15049156 | 57 reader: read the page #6. There was: 6. Release writer's semaphore
+15049156 | 57 reader: waiting for read semaphore...
+15049203 | 14 writer: going down...
+15049218 | 0 reader: going down...
+15049250 | 43 writer: writing page number to page #16
+15049250 | 50 reader: read the page #16. There was: 16. Release writer's semaphore
+15049250 | 50 reader: waiting for read semaphore...
+15049281 | 17 writer: release reader's semaphore #3
+15049281 | 7 reader: reading page #3
+15049328 | 20 writer: writing page number to page #1
+15049328 | 30 reader: read the page #1. There was: 1. Release writer's semaphore
+15049328 | 30 reader: waiting for read semaphore...
+15049390 | 17 writer: going down...
+15049531 | 3 writer: release reader's semaphore #18
+15049531 | 37 writer: release reader's semaphore #13
+15049531 | 5 reader: reading page #18
+15049531 | 6 reader: reading page #13
+15049609 | 19 reader: reading page #10
+15049609 | 7 writer: release reader's semaphore #10
+15049625 | 3 writer: going down...
+15049640 | 11 writer: writing page number to page #12
+15049640 | 37 writer: going down...
+15049640 | 46 reader: read the page #12. There was: 12. Release writer's semaphore
+15049640 | 46 reader: waiting for read semaphore...
+15049703 | 7 writer: going down...
+15049718 | 22 writer: writing page number to page #19
+15049718 | 51 reader: read the page #19. There was: 19. Release writer's semaphore
+15049718 | 51 reader: waiting for read semaphore...
+15049734 | 21 reader: reading page #4
+15049734 | 27 writer: release reader's semaphore #4
+15049734 | 4 reader: reading page #15
+15049734 | 5 writer: release reader's semaphore #15
+15049781 | 2 reader: read the page #5. There was: 5. Release writer's semaphore
+15049781 | 36 writer: writing page number to page #5
+15049828 | 27 writer: going down...
+15049843 | 13 writer: writing page number to page #7
+15049843 | 5 writer: going down...
+15049843 | 59 reader: read the page #7. There was: 7. Release writer's semaphore
+15049843 | 59 reader: waiting for read semaphore...
+15049875 | 1 reader: read the page #8. There was: 8. Release writer's semaphore
+15049875 | 19 writer: writing page number to page #8
+15049875 | 2 reader: going down...
+15049906 | 3 reader: read the page #9. There was: 9. Release writer's semaphore
+15049906 | 34 writer: writing page number to page #9
+15049968 | 1 reader: going down...
+15050015 | 3 reader: going down...
+15050031 | 1 writer: release reader's semaphore #2
+15050031 | 15 reader: reading page #2
+15050062 | 24 reader: reading page #14
+15050062 | 6 writer: release reader's semaphore #14
+15050125 | 1 writer: going down...
+15050140 | 2 writer: release reader's semaphore #0
+15050140 | 21 writer: writing page number to page #17
+15050140 | 28 reader: reading page #0
+15050140 | 33 reader: read the page #17. There was: 17. Release writer's semaphore
+15050156 | 6 writer: going down...
+15050171 | 28 writer: writing page number to page #3
+15050171 | 7 reader: read the page #3. There was: 3. Release writer's semaphore
+15050234 | 2 writer: going down...
+15050250 | 33 reader: going down...
+15050265 | 7 reader: going down...
+15050296 | 20 writer: release reader's semaphore #1
+15050296 | 8 reader: reading page #1
+15050328 | 33 writer: writing page number to page #18
+15050328 | 5 reader: read the page #18. There was: 18. Release writer's semaphore
+15050359 | 11 writer: release reader's semaphore #12
+15050359 | 17 reader: reading page #12
+15050359 | 41 reader: reading page #11
+15050359 | 8 writer: release reader's semaphore #11
+15050390 | 20 writer: going down...
+15050437 | 5 reader: going down...
+15050453 | 11 writer: going down...
+15050468 | 11 reader: reading page #6
+15050468 | 40 writer: release reader's semaphore #6
+15050468 | 8 writer: going down...
+15050484 | 15 writer: writing page number to page #13
+15050484 | 18 writer: writing page number to page #10
+15050484 | 19 reader: read the page #10. There was: 10. Release writer's semaphore
+15050484 | 6 reader: read the page #13. There was: 13. Release writer's semaphore
+15050531 | 25 reader: reading page #9
+15050531 | 34 writer: release reader's semaphore #9
+15050578 | 21 reader: read the page #4. There was: 4. Release writer's semaphore
+15050578 | 40 writer: going down...
+15050578 | 50 writer: writing page number to page #4
+15050593 | 19 reader: going down...
+15050593 | 6 reader: going down...
+15050625 | 22 reader: reading page #16
+15050625 | 34 writer: going down...
+15050625 | 43 writer: release reader's semaphore #16
+15050671 | 21 reader: going down...
+15050718 | 43 writer: going down...
+15050765 | 22 writer: release reader's semaphore #19
+15050765 | 36 reader: reading page #19
+15050875 | 22 writer: going down...
+15050937 | 41 reader: read the page #11. There was: 11. Release writer's semaphore
+15050937 | 42 writer: writing page number to page #11
+15051000 | 12 reader: reading page #7
+15051000 | 13 writer: release reader's semaphore #7
+15051000 | 18 reader: reading page #8
+15051000 | 19 writer: release reader's semaphore #8
+15051031 | 41 reader: going down...
+15051062 | 10 writer: writing page number to page #2
+15051062 | 15 reader: read the page #2. There was: 2. Release writer's semaphore
+15051078 | 16 writer: writing page number to page #14
+15051078 | 24 reader: read the page #14. There was: 14. Release writer's semaphore
+15051093 | 13 writer: going down...
+15051093 | 19 writer: going down...
+15051109 | 32 writer: writing page number to page #15
+15051109 | 4 reader: read the page #15. There was: 15. Release writer's semaphore
+15051171 | 15 reader: going down...
+15051187 | 15 writer: release reader's semaphore #13
+15051187 | 20 reader: reading page #13
+15051187 | 24 reader: going down...
+15051218 | 4 reader: going down...
+15051265 | 10 reader: reading page #5
+15051265 | 36 writer: release reader's semaphore #5
+15051281 | 15 writer: going down...
+15051312 | 28 writer: release reader's semaphore #3
+15051312 | 39 writer: writing page number to page #1
+15051312 | 42 reader: reading page #3
+15051312 | 8 reader: read the page #1. There was: 1. Release writer's semaphore
+15051343 | 14 reader: reading page #17
+15051343 | 21 writer: release reader's semaphore #17
+15051359 | 36 writer: going down...
+15051406 | 18 writer: release reader's semaphore #10
+15051406 | 23 reader: reading page #10
+15051421 | 26 writer: writing page number to page #0
+15051421 | 28 reader: read the page #0. There was: 0. Release writer's semaphore
+15051421 | 28 writer: going down...
+15051421 | 8 reader: going down...
+15051437 | 17 reader: read the page #12. There was: 12. Release writer's semaphore
+15051437 | 21 writer: going down...
+15051437 | 29 writer: writing page number to page #12
+15051500 | 18 writer: going down...
+15051515 | 28 reader: going down...
+15051531 | 17 reader: going down...
+15051593 | 22 reader: read the page #16. There was: 16. Release writer's semaphore
+15051593 | 52 writer: writing page number to page #16
+15051671 | 32 reader: reading page #18
+15051671 | 33 writer: release reader's semaphore #18
+15051703 | 22 reader: going down...
+15051750 | 10 writer: release reader's semaphore #2
+15051750 | 9 reader: reading page #2
+15051765 | 33 writer: going down...
+15051812 | 13 reader: reading page #4
+15051812 | 50 writer: release reader's semaphore #4
+15051828 | 25 reader: read the page #9. There was: 9. Release writer's semaphore
+15051828 | 49 writer: writing page number to page #9
+15051843 | 10 writer: going down...
+15051843 | 11 reader: read the page #6. There was: 6. Release writer's semaphore
+15051843 | 41 writer: writing page number to page #6
+15051859 | 14 reader: read the page #17. There was: 17. Release writer's semaphore
+15051859 | 46 writer: writing page number to page #17
+15051906 | 50 writer: going down...
+15051921 | 25 reader: going down...
+15051953 | 11 reader: going down...
+15051953 | 14 reader: going down...
+15051953 | 31 writer: writing page number to page #3
+15051953 | 42 reader: read the page #3. There was: 3. Release writer's semaphore
+15051984 | 26 reader: reading page #11
+15051984 | 42 writer: release reader's semaphore #11
+15052046 | 18 reader: read the page #8. There was: 8. Release writer's semaphore
+15052046 | 57 writer: writing page number to page #8
+15052062 | 42 reader: going down...
+15052093 | 42 writer: going down...
+15052125 | 16 reader: reading page #15
+15052125 | 32 writer: release reader's semaphore #15
+15052156 | 18 reader: going down...
+15052203 | 12 reader: read the page #7. There was: 7. Release writer's semaphore
+15052203 | 53 writer: writing page number to page #7
+15052234 | 20 reader: read the page #13. There was: 13. Release writer's semaphore
+15052234 | 32 writer: going down...
+15052234 | 35 writer: writing page number to page #19
+15052234 | 36 reader: read the page #19. There was: 19. Release writer's semaphore
+15052234 | 39 writer: release reader's semaphore #1
+15052234 | 40 reader: reading page #1
+15052234 | 56 writer: writing page number to page #13
+15052250 | 26 writer: release reader's semaphore #0
+15052250 | 55 reader: reading page #0
+15052312 | 12 reader: going down...
+15052328 | 20 reader: going down...
+15052328 | 36 reader: going down...
+15052343 | 26 writer: going down...
+15052343 | 39 writer: going down...
+15052421 | 29 reader: reading page #12
+15052421 | 29 writer: release reader's semaphore #12
+15052453 | 38 reader: reading page #6
+15052453 | 41 writer: release reader's semaphore #6
+15052468 | 13 reader: read the page #4. There was: 4. Release writer's semaphore
+15052468 | 25 writer: writing page number to page #4
+15052468 | 49 writer: release reader's semaphore #9
+15052468 | 56 reader: reading page #9
+15052531 | 29 writer: going down...
+15052546 | 16 writer: release reader's semaphore #14
+15052546 | 31 reader: reading page #14
+15052562 | 13 reader: going down...
+15052562 | 41 writer: going down...
+15052562 | 49 writer: going down...
+15052640 | 16 writer: going down...
+15052703 | 54 writer: writing page number to page #2
+15052703 | 9 reader: read the page #2. There was: 2. Release writer's semaphore
+15052718 | 10 reader: read the page #5. There was: 5. Release writer's semaphore
+15052718 | 38 writer: writing page number to page #5
+15052796 | 9 reader: going down...
+15052812 | 23 reader: read the page #10. There was: 10. Release writer's semaphore
+15052812 | 24 writer: writing page number to page #10
+15052828 | 10 reader: going down...
+15052828 | 47 reader: reading page #16
+15052828 | 52 writer: release reader's semaphore #16
+15052906 | 23 reader: going down...
+15052937 | 52 writer: going down...
+15052968 | 35 reader: reading page #8
+15052968 | 57 writer: release reader's semaphore #8
+15053062 | 25 writer: release reader's semaphore #4
+15053062 | 27 reader: reading page #4
+15053078 | 57 writer: going down...
+15053093 | 26 reader: read the page #11. There was: 11. Release writer's semaphore
+15053093 | 32 reader: read the page #18. There was: 18. Release writer's semaphore
+15053093 | 44 writer: writing page number to page #18
+15053093 | 47 writer: writing page number to page #11
+15053125 | 55 reader: read the page #0. There was: 0. Release writer's semaphore
+15053125 | 58 writer: writing page number to page #0
+15053171 | 25 writer: going down...
+15053187 | 16 reader: read the page #15. There was: 15. Release writer's semaphore
+15053187 | 30 writer: writing page number to page #15
+15053187 | 32 reader: going down...
+15053187 | 37 reader: reading page #13
+15053187 | 56 writer: release reader's semaphore #13
+15053203 | 26 reader: going down...
+15053203 | 35 writer: release reader's semaphore #19
+15053203 | 58 reader: reading page #19
+15053218 | 55 reader: going down...
+15053265 | 31 writer: release reader's semaphore #3
+15053265 | 34 reader: reading page #3
+15053281 | 56 writer: going down...
+15053296 | 16 reader: going down...
+15053312 | 35 writer: going down...
+15053312 | 43 reader: reading page #17
+15053312 | 46 writer: release reader's semaphore #17
+15053328 | 23 writer: writing page number to page #6
+15053328 | 38 reader: read the page #6. There was: 6. Release writer's semaphore
+15053375 | 31 writer: going down...
+15053406 | 44 reader: reading page #7
+15053406 | 53 writer: release reader's semaphore #7
+15053421 | 38 reader: going down...
+15053421 | 46 writer: going down...
+15053500 | 38 writer: release reader's semaphore #5
+15053500 | 39 reader: reading page #5
+15053500 | 40 reader: read the page #1. There was: 1. Release writer's semaphore
+15053500 | 53 writer: going down...
+15053500 | 55 writer: writing page number to page #1
+15053593 | 29 reader: read the page #12. There was: 12. Release writer's semaphore
+15053593 | 38 writer: going down...
+15053593 | 48 writer: writing page number to page #12
+15053609 | 40 reader: going down...
+15053640 | 54 reader: reading page #0
+15053640 | 58 writer: release reader's semaphore #0
+15053687 | 48 reader: reading page #2
+15053687 | 54 writer: release reader's semaphore #2
+15053703 | 29 reader: going down...
+15053734 | 58 writer: going down...
+15053765 | 31 reader: read the page #14. There was: 14. Release writer's semaphore
+15053765 | 59 writer: writing page number to page #14
+15053796 | 54 writer: going down...
+15053828 | 47 writer: release reader's semaphore #11
+15053828 | 49 reader: reading page #11
+15053843 | 24 writer: release reader's semaphore #10
+15053843 | 45 reader: reading page #10
+15053875 | 31 reader: going down...
+15053937 | 24 writer: going down...
+15053937 | 45 writer: writing page number to page #9
+15053937 | 47 writer: going down...
+15053937 | 56 reader: read the page #9. There was: 9. Release writer's semaphore
+15054015 | 23 writer: release reader's semaphore #6
+15054015 | 52 reader: reading page #6
+15054046 | 56 reader: going down...
+15054093 | 30 writer: release reader's semaphore #15
+15054093 | 43 reader: read the page #17. There was: 17. Release writer's semaphore
+15054093 | 44 reader: read the page #7. There was: 7. Release writer's semaphore
+15054093 | 44 writer: release reader's semaphore #18
+15054093 | 51 writer: writing page number to page #17
+15054093 | 53 reader: reading page #18
+15054093 | 57 reader: reading page #15
+15054109 | 23 writer: going down...
+15054125 | 34 reader: read the page #3. There was: 3. Release writer's semaphore
+15054187 | 43 reader: going down...
+15054187 | 44 writer: going down...
+15054203 | 30 writer: going down...
+15054203 | 44 reader: going down...
+15054218 | 58 reader: read the page #19. There was: 19. Release writer's semaphore
+15054234 | 34 reader: going down...
+15054265 | 47 reader: read the page #16. There was: 16. Release writer's semaphore
+15054312 | 48 reader: read the page #2. There was: 2. Release writer's semaphore
+15054328 | 35 reader: read the page #8. There was: 8. Release writer's semaphore
+15054328 | 58 reader: going down...
+15054359 | 47 reader: going down...
+15054421 | 35 reader: going down...
+15054421 | 37 reader: read the page #13. There was: 13. Release writer's semaphore
+15054421 | 39 reader: read the page #5. There was: 5. Release writer's semaphore
+15054421 | 48 reader: going down...
+15054515 | 39 reader: going down...
+15054531 | 27 reader: read the page #4. There was: 4. Release writer's semaphore
+15054531 | 37 reader: going down...
+15054625 | 27 reader: going down...
+15054718 | 50 reader: reading page #1
+15054718 | 55 writer: release reader's semaphore #1
+15054750 | 30 reader: reading page #9
+15054750 | 45 writer: release reader's semaphore #9
+15054828 | 55 writer: going down...
+15054843 | 45 reader: read the page #10. There was: 10. Release writer's semaphore
+15054843 | 45 writer: going down...
+15054937 | 45 reader: going down...
+15054968 | 52 reader: read the page #6. There was: 6. Release writer's semaphore
+15055078 | 46 reader: reading page #12
+15055078 | 48 writer: release reader's semaphore #12
+15055078 | 52 reader: going down...
+15055093 | 54 reader: read the page #0. There was: 0. Release writer's semaphore
+15055156 | 51 reader: reading page #14
+15055156 | 59 writer: release reader's semaphore #14
+15055171 | 48 writer: going down...
+15055187 | 54 reader: going down...
+15055218 | 57 reader: read the page #15. There was: 15. Release writer's semaphore
+15055250 | 59 writer: going down...
+15055281 | 49 reader: read the page #11. There was: 11. Release writer's semaphore
+15055328 | 53 reader: read the page #18. There was: 18. Release writer's semaphore
+15055328 | 57 reader: going down...
+15055390 | 49 reader: going down...
+15055421 | 51 writer: release reader's semaphore #17
+15055421 | 59 reader: reading page #17
+15055437 | 53 reader: going down...
+15055484 | 50 reader: read the page #1. There was: 1. Release writer's semaphore
+15055515 | 51 writer: going down...
+15055593 | 50 reader: going down...
+15055937 | 51 reader: read the page #14. There was: 14. Release writer's semaphore
+15055953 | 46 reader: read the page #12. There was: 12. Release writer's semaphore
+15056750 | 30 reader: read the page #9. There was: 9. Release writer's semaphore
+15056796 | 59 reader: read the page #17. There was: 17. Release writer's semaphore
+15056843 | 46 reader: going down...
+15056843 | 51 reader: going down...
+15056906 | 59 reader: going down...

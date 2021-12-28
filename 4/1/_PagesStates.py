@@ -37,7 +37,8 @@ for line in pageLog:
 			pagesWrite.remove(page)
 		elif page in pagesRead:
 			pagesRead.remove(page)
-		pagesFree.append(page)
+		if page not in pagesFree:
+			pagesFree.append(page)
 	
 	timeOctave.append(time)
 	pagesReadOctave.append(len(pagesRead))
